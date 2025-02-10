@@ -313,7 +313,8 @@ export class InvoiceComponent {
         //................
         const bodyRequest: any = {
           quantity: newRecord.quantity,
-          amountPerUnit: newRecord.amountPerUnit,
+          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+          //newRecord.amountPerUnit,
         };
         if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
           bodyRequest.profitMargin = newRecord.profitMargin;
@@ -322,11 +323,12 @@ export class InvoiceComponent {
           next: (res) => {
             console.log('mainitem with total:', res);
             newRecord.total = res.total;
-            newRecord.amountPerUnitWithProfit = res.amountPerUnitWithProfit;
-            if (mainItem.amountPerUnitWithProfit !== undefined) {
-              console.log(mainItem.amountPerUnitWithProfit);
-              newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
-            }
+            newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+            // res.amountPerUnitWithProfit;
+            // if (mainItem.amountPerUnitWithProfit !== undefined) {
+            //   console.log(mainItem.amountPerUnitWithProfit);
+            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
+            // }
             newRecord.totalWithProfit = res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
@@ -401,7 +403,8 @@ export class InvoiceComponent {
         //................
         const bodyRequest: any = {
           quantity: newRecord.quantity,
-          amountPerUnit: newRecord.amountPerUnit,
+          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+          //newRecord.amountPerUnit,
         };
         if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
           bodyRequest.profitMargin = newRecord.profitMargin;
@@ -410,11 +413,12 @@ export class InvoiceComponent {
           next: (res) => {
             console.log('mainitem with total:', res);
             newRecord.total = res.total;
-            newRecord.amountPerUnitWithProfit = res.amountPerUnitWithProfit;
-            if (mainItem.amountPerUnitWithProfit !== undefined) {
-              console.log(mainItem.amountPerUnitWithProfit);
-              newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
-            }
+            newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+            // res.amountPerUnitWithProfit;
+            // if (mainItem.amountPerUnitWithProfit !== undefined) {
+            //   console.log(mainItem.amountPerUnitWithProfit);
+            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
+            // }
             newRecord.totalWithProfit = res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
@@ -488,7 +492,8 @@ export class InvoiceComponent {
         //................
         const bodyRequest: any = {
           quantity: newRecord.quantity,
-          amountPerUnit: newRecord.amountPerUnit,
+          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+          //newRecord.amountPerUnit,
         };
         if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
           bodyRequest.profitMargin = newRecord.profitMargin;
@@ -497,11 +502,12 @@ export class InvoiceComponent {
           next: (res) => {
             console.log('mainitem with total:', res);
             newRecord.total = res.total;
-            newRecord.amountPerUnitWithProfit = res.amountPerUnitWithProfit;
-            if (mainItem.amountPerUnitWithProfit !== undefined) {
-              console.log(mainItem.amountPerUnitWithProfit);
-              newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
-            }
+            newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+            // res.amountPerUnitWithProfit;
+            // if (mainItem.amountPerUnitWithProfit !== undefined) {
+            //   console.log(mainItem.amountPerUnitWithProfit);
+            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
+            // }
             newRecord.totalWithProfit = res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
@@ -575,7 +581,8 @@ export class InvoiceComponent {
         //................
         const bodyRequest: any = {
           quantity: newRecord.quantity,
-          amountPerUnit: newRecord.amountPerUnit,
+          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+          //newRecord.amountPerUnit,
         };
         if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
           bodyRequest.profitMargin = newRecord.profitMargin;
@@ -584,11 +591,12 @@ export class InvoiceComponent {
           next: (res) => {
             console.log('mainitem with total:', res);
             newRecord.total = res.total;
-            newRecord.amountPerUnitWithProfit = res.amountPerUnitWithProfit;
-            if (mainItem.amountPerUnitWithProfit !== undefined) {
-              console.log(mainItem.amountPerUnitWithProfit);
-              newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
-            }
+            newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+            //res.amountPerUnitWithProfit;
+            // if (mainItem.amountPerUnitWithProfit !== undefined) {
+            //   console.log(mainItem.amountPerUnitWithProfit);
+            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
+            // }
             newRecord.totalWithProfit = res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
@@ -672,7 +680,8 @@ export class InvoiceComponent {
         //................
         const bodyRequest: any = {
           quantity: newRecord.quantity,
-          amountPerUnit: newRecord.amountPerUnit,
+          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+          //newRecord.amountPerUnit,
         };
         if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
           bodyRequest.profitMargin = newRecord.profitMargin;
@@ -681,11 +690,12 @@ export class InvoiceComponent {
           next: (res) => {
             console.log('mainitem with total:', res);
             newRecord.total = res.total;
-            newRecord.amountPerUnitWithProfit = res.amountPerUnitWithProfit;
-            if (mainItem.amountPerUnitWithProfit !== undefined) {
-              console.log(mainItem.amountPerUnitWithProfit);
-              newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
-            }
+            newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+            // res.amountPerUnitWithProfit;
+            // if (mainItem.amountPerUnitWithProfit !== undefined) {
+            //   console.log(mainItem.amountPerUnitWithProfit);
+            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
+            // }
             newRecord.totalWithProfit = res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
@@ -760,7 +770,8 @@ export class InvoiceComponent {
         //................
         const bodyRequest: any = {
           quantity: newRecord.quantity,
-          amountPerUnit: newRecord.amountPerUnit,
+          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+          //newRecord.amountPerUnit,
         };
         if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
           bodyRequest.profitMargin = newRecord.profitMargin;
@@ -769,11 +780,12 @@ export class InvoiceComponent {
           next: (res) => {
             console.log('mainitem with total:', res);
             newRecord.total = res.total;
-            newRecord.amountPerUnitWithProfit = res.amountPerUnitWithProfit;
-            if (mainItem.amountPerUnitWithProfit !== undefined) {
-              console.log(mainItem.amountPerUnitWithProfit);
-              newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
-            }
+            newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+            //res.amountPerUnitWithProfit;
+            // if (mainItem.amountPerUnitWithProfit !== undefined) {
+            //   console.log(mainItem.amountPerUnitWithProfit);
+            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
+            // }
             newRecord.totalWithProfit = res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
@@ -847,7 +859,8 @@ export class InvoiceComponent {
         //................
         const bodyRequest: any = {
           quantity: newRecord.quantity,
-          amountPerUnit: newRecord.amountPerUnit,
+          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+          //newRecord.amountPerUnit,
         };
         if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
           bodyRequest.profitMargin = newRecord.profitMargin;
@@ -856,11 +869,12 @@ export class InvoiceComponent {
           next: (res) => {
             console.log('mainitem with total:', res);
             newRecord.total = res.total;
-            newRecord.amountPerUnitWithProfit = res.amountPerUnitWithProfit;
-            if (mainItem.amountPerUnitWithProfit !== undefined) {
-              console.log(mainItem.amountPerUnitWithProfit);
-              newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
-            }
+            newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+            // res.amountPerUnitWithProfit;
+            // if (mainItem.amountPerUnitWithProfit !== undefined) {
+            //   console.log(mainItem.amountPerUnitWithProfit);
+            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
+            // }
             newRecord.totalWithProfit = res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
@@ -935,7 +949,8 @@ export class InvoiceComponent {
         //................
         const bodyRequest: any = {
           quantity: newRecord.quantity,
-          amountPerUnit: newRecord.amountPerUnit,
+          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+          //newRecord.amountPerUnit,
         };
         if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
           bodyRequest.profitMargin = newRecord.profitMargin;
@@ -944,11 +959,12 @@ export class InvoiceComponent {
           next: (res) => {
             console.log('mainitem with total:', res);
             newRecord.total = res.total;
-            newRecord.amountPerUnitWithProfit = res.amountPerUnitWithProfit;
-            if (mainItem.amountPerUnitWithProfit !== undefined) {
-              console.log(mainItem.amountPerUnitWithProfit);
-              newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
-            }
+            newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+            //  res.amountPerUnitWithProfit;
+            // if (mainItem.amountPerUnitWithProfit !== undefined) {
+            //   console.log(mainItem.amountPerUnitWithProfit);
+            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
+            // }
             newRecord.totalWithProfit = res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
@@ -1043,6 +1059,7 @@ export class InvoiceComponent {
   // }
 
   // new with subitems:
+ 
   onFileSelect(event: any, fileUploader: any) {
     console.log('Records before :', this.parsedData);
 
@@ -1253,12 +1270,6 @@ export class InvoiceComponent {
         total: this.newMainItem.total,
         profitMargin: this.newMainItem.profitMargin,
         amountPerUnitWithProfit: this.newMainItem.amountPerUnitWithProfit,
-        // this.newMainItem.profitMargin === 0
-        // ? this.newMainItem.amountPerUnit
-        // : (this.newMainItem.amountPerUnit ?? 0) *
-        //     ((this.newMainItem.profitMargin ?? 0) / 100) +
-        //   (this.newMainItem.amountPerUnit ?? 0),
-        //this.newMainItem.amountPerUnitWithProfit,
         totalWithProfit: this.newMainItem.totalWithProfit,
         temporaryDeletion: 'temporary',
         referenceId: this.documentNumber,
@@ -1272,7 +1283,8 @@ export class InvoiceComponent {
 
       const bodyRequest: any = {
         quantity: newRecord.quantity,
-        amountPerUnit: newRecord.amountPerUnit,
+        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+        //newRecord.amountPerUnit,
       };
       if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
         bodyRequest.profitMargin = newRecord.profitMargin;
@@ -1281,12 +1293,13 @@ export class InvoiceComponent {
         next: (res) => {
           console.log('mainitem with total:', res);
           newRecord.total = res.total;
-          newRecord.amountPerUnitWithProfit = res.amountPerUnitWithProfit;
+          newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit;
+          //res.amountPerUnitWithProfit;
           // this.newMainItem.amountPerUnitWithProfit !==0 || this.newMainItem.amountPerUnitWithProfit !== undefined || this.newMainItem.amountPerUnitWithProfit !== null
-          if (this.newMainItem.amountPerUnitWithProfit !== undefined) {
-            console.log(this.newMainItem.amountPerUnitWithProfit);
-            newRecord.amountPerUnitWithProfit = this.newMainItem.amountPerUnitWithProfit;
-          }
+          // if (this.newMainItem.amountPerUnitWithProfit !== undefined) {
+          //   console.log(this.newMainItem.amountPerUnitWithProfit);
+          //   newRecord.amountPerUnitWithProfit = this.newMainItem.amountPerUnitWithProfit;
+          // }
           newRecord.totalWithProfit = res.totalWithProfit;
           console.log(' Record:', newRecord);
 
@@ -1366,7 +1379,8 @@ export class InvoiceComponent {
       console.log(newRecord);
       const bodyRequest: any = {
         quantity: newRecord.quantity,
-        amountPerUnit: newRecord.amountPerUnit,
+        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+        //newRecord.amountPerUnit,
       };
       if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
         bodyRequest.profitMargin = newRecord.profitMargin;
@@ -1375,11 +1389,12 @@ export class InvoiceComponent {
         next: (res) => {
           console.log('mainitem with total:', res);
           newRecord.total = res.total;
-          newRecord.amountPerUnitWithProfit = res.amountPerUnitWithProfit;
-          if (this.newMainItem.amountPerUnitWithProfit !== undefined) {
-            console.log(this.newMainItem.amountPerUnitWithProfit);
-            newRecord.amountPerUnitWithProfit = this.newMainItem.amountPerUnitWithProfit;
-          }
+          newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+          //res.amountPerUnitWithProfit;
+          // if (this.newMainItem.amountPerUnitWithProfit !== undefined) {
+          //   console.log(this.newMainItem.amountPerUnitWithProfit);
+          //   newRecord.amountPerUnitWithProfit = this.newMainItem.amountPerUnitWithProfit;
+          // }
           newRecord.totalWithProfit = res.totalWithProfit;
           const filteredRecord = Object.fromEntries(
             Object.entries(newRecord).filter(([_, value]) => {
@@ -1453,7 +1468,8 @@ export class InvoiceComponent {
       console.log(newRecord);
       const bodyRequest: any = {
         quantity: newRecord.quantity,
-        amountPerUnit: newRecord.amountPerUnit,
+        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+        //newRecord.amountPerUnit,
       };
       if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
         bodyRequest.profitMargin = newRecord.profitMargin;
@@ -1462,11 +1478,12 @@ export class InvoiceComponent {
         next: (res) => {
           console.log('mainitem with total:', res);
           newRecord.total = res.total;
-          newRecord.amountPerUnitWithProfit = res.amountPerUnitWithProfit;
-          if (this.newMainItem.amountPerUnitWithProfit !== undefined) {
-            console.log(this.newMainItem.amountPerUnitWithProfit);
-            newRecord.amountPerUnitWithProfit = this.newMainItem.amountPerUnitWithProfit;
-          }
+          newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+          //res.amountPerUnitWithProfit;
+          // if (this.newMainItem.amountPerUnitWithProfit !== undefined) {
+          //   console.log(this.newMainItem.amountPerUnitWithProfit);
+          //   newRecord.amountPerUnitWithProfit = this.newMainItem.amountPerUnitWithProfit;
+          // }
           newRecord.totalWithProfit = res.totalWithProfit;
           const filteredRecord = Object.fromEntries(
             Object.entries(newRecord).filter(([_, value]) => {
@@ -1539,7 +1556,8 @@ export class InvoiceComponent {
       console.log(newRecord);
       const bodyRequest: any = {
         quantity: newRecord.quantity,
-        amountPerUnit: newRecord.amountPerUnit,
+        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+        // newRecord.amountPerUnit,
       };
       if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
         bodyRequest.profitMargin = newRecord.profitMargin;
@@ -1548,11 +1566,12 @@ export class InvoiceComponent {
         next: (res) => {
           console.log('mainitem with total:', res);
           newRecord.total = res.total;
-          newRecord.amountPerUnitWithProfit = res.amountPerUnitWithProfit;
-          if (this.newMainItem.amountPerUnitWithProfit !== undefined) {
-            console.log(this.newMainItem.amountPerUnitWithProfit);
-            newRecord.amountPerUnitWithProfit = this.newMainItem.amountPerUnitWithProfit;
-          }
+          newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+          //res.amountPerUnitWithProfit;
+          // if (this.newMainItem.amountPerUnitWithProfit !== undefined) {
+          //   console.log(this.newMainItem.amountPerUnitWithProfit);
+          //   newRecord.amountPerUnitWithProfit = this.newMainItem.amountPerUnitWithProfit;
+          // }
           newRecord.totalWithProfit = res.totalWithProfit;
           const filteredRecord = Object.fromEntries(
             Object.entries(newRecord).filter(([_, value]) => {
@@ -2277,7 +2296,8 @@ export class InvoiceComponent {
       //....................
       const bodyRequest: any = {
         quantity: newRecord.quantity,
-        amountPerUnit: newRecord.amountPerUnit,
+        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+        //newRecord.amountPerUnit,
       };
 
       if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
@@ -2287,11 +2307,12 @@ export class InvoiceComponent {
         next: (res) => {
           console.log('mainitem with total:', res);
           newRecord.total = res.total;
-          newRecord.amountPerUnitWithProfit = res.amountPerUnitWithProfit;
-          if (record.amountPerUnitWithProfit !== null) {
-            console.log(record.amountPerUnitWithProfit);
-            newRecord.amountPerUnitWithProfit = record.amountPerUnitWithProfit;
-          }
+          newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+          // res.amountPerUnitWithProfit;
+          // if (record.amountPerUnitWithProfit !== null) {
+          //   console.log(record.amountPerUnitWithProfit);
+          //   newRecord.amountPerUnitWithProfit = record.amountPerUnitWithProfit;
+          // }
           newRecord.totalWithProfit = res.totalWithProfit;
           const mainItemIndex = this.mainItemsRecords.findIndex(
             (item) => item.invoiceMainItemCode === invoiceMainItemCode
@@ -2350,7 +2371,8 @@ export class InvoiceComponent {
       //....................
       const bodyRequest: any = {
         quantity: newRecord.quantity,
-        amountPerUnit: newRecord.amountPerUnit,
+        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+        //newRecord.amountPerUnit,
       };
 
       // Conditionally add profitMargin if it has a non-zero value
@@ -2363,11 +2385,12 @@ export class InvoiceComponent {
           console.log('mainitem with total:', res);
           // this.totalValue = 0;
           newRecord.total = res.total;
-          newRecord.amountPerUnitWithProfit = res.amountPerUnitWithProfit;
-          if (record.amountPerUnitWithProfit !== null) {
-            console.log(record.amountPerUnitWithProfit);
-            newRecord.amountPerUnitWithProfit = record.amountPerUnitWithProfit;
-          }
+          newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+          //res.amountPerUnitWithProfit;
+          // if (record.amountPerUnitWithProfit !== null) {
+          //   console.log(record.amountPerUnitWithProfit);
+          //   newRecord.amountPerUnitWithProfit = record.amountPerUnitWithProfit;
+          // }
           newRecord.totalWithProfit = res.totalWithProfit;
 
           // Update mainItemsRecords array in the component to reflect the changes
@@ -2423,7 +2446,8 @@ export class InvoiceComponent {
       //....................
       const bodyRequest: any = {
         quantity: newRecord.quantity,
-        amountPerUnit: newRecord.amountPerUnit,
+        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+        //newRecord.amountPerUnit,
       };
 
       // Conditionally add profitMargin if it has a non-zero value
@@ -2436,11 +2460,12 @@ export class InvoiceComponent {
           console.log('mainitem with total:', res);
           // this.totalValue = 0;
           newRecord.total = res.total;
-          newRecord.amountPerUnitWithProfit = res.amountPerUnitWithProfit;
-          if (record.amountPerUnitWithProfit !== null) {
-            console.log(record.amountPerUnitWithProfit);
-            newRecord.amountPerUnitWithProfit = record.amountPerUnitWithProfit;
-          }
+          newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+          //res.amountPerUnitWithProfit;
+          // if (record.amountPerUnitWithProfit !== null) {
+          //   console.log(record.amountPerUnitWithProfit);
+          //   newRecord.amountPerUnitWithProfit = record.amountPerUnitWithProfit;
+          // }
           newRecord.totalWithProfit = res.totalWithProfit;
 
           // Update mainItemsRecords array in the component to reflect the changes
@@ -2486,11 +2511,13 @@ export class InvoiceComponent {
       !this.resultAfterTestUpdate
     ) {
       console.log({ ...mainItemWithoutMainItemCode });
+      console.log({ updatedMainItem });
 
       //....................
       const bodyRequest: any = {
         quantity: updatedMainItem.quantity,
-        amountPerUnit: updatedMainItem.amountPerUnit,
+        amountPerUnit: updatedMainItem.amountPerUnitWithProfit ? updatedMainItem.amountPerUnitWithProfit: updatedMainItem.amountPerUnit
+        //updatedMainItem.amountPerUnit,
       };
       if (updatedMainItem.profitMargin && updatedMainItem.profitMargin !== 0) {
         bodyRequest.profitMargin = updatedMainItem.profitMargin;
@@ -2499,11 +2526,12 @@ export class InvoiceComponent {
         next: (res) => {
           console.log('mainitem with total:', res);
           updatedMainItem.total = res.total;
-          updatedMainItem.amountPerUnitWithProfit = res.amountPerUnitWithProfit;
-          if (record.amountPerUnitWithProfit !== null) {
-            console.log(record.amountPerUnitWithProfit);
-            updatedMainItem.amountPerUnitWithProfit = record.amountPerUnitWithProfit;
-          }
+          updatedMainItem.amountPerUnitWithProfit =  updatedMainItem.amountPerUnitWithProfit ? updatedMainItem.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+          // res.amountPerUnitWithProfit;
+          // if (record.amountPerUnitWithProfit !== null) {
+          //   console.log(record.amountPerUnitWithProfit);
+          //   updatedMainItem.amountPerUnitWithProfit = record.amountPerUnitWithProfit;
+          // }
           updatedMainItem.totalWithProfit = res.totalWithProfit;
           const mainItemIndex = this.mainItemsRecords.findIndex(
             (item) => item.invoiceMainItemCode === invoiceMainItemCode
