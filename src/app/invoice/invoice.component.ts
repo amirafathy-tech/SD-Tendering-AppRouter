@@ -208,6 +208,15 @@ export class InvoiceComponent {
       });
   }
 
+  reflectProfitMargin(mainItem: any): void {
+    if (mainItem.amountPerUnitWithProfit != null && mainItem.amountPerUnitWithProfit !== 0) {
+      mainItem.profitMargin = ((mainItem.amountPerUnitWithProfit - (mainItem.amountPerUnit ?? 0)) / (mainItem.amountPerUnit ?? 1)) * 100;
+    }
+    //  else {
+    //   mainItem.profitMargin = 0; // Ensure no NaN values
+    // }
+  }
+
   // search:
   originalMainItemsRecords: MainItem[] = []; // Keep a copy of the original records
 
@@ -291,7 +300,8 @@ export class InvoiceComponent {
         // quantity: item.quantity,
         amountPerUnit: mainItem.grossPrice,
         amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
-        total: mainItem.netValue,
+        total: (this.resultAfterTest) * (mainItem.grossPrice),
+        //mainItem.netValue,
         profitMargin: mainItem.profitMargin,
         totalWithProfit: mainItem.totalWithProfit,
         // doNotPrint: mainItem.doNotPrint,
@@ -322,14 +332,15 @@ export class InvoiceComponent {
         this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
           next: (res) => {
             console.log('mainitem with total:', res);
-            newRecord.total = res.total;
+            //newRecord.total = res.total;
             newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
             // res.amountPerUnitWithProfit;
             // if (mainItem.amountPerUnitWithProfit !== undefined) {
             //   console.log(mainItem.amountPerUnitWithProfit);
             //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
             // }
-            newRecord.totalWithProfit = res.totalWithProfit;
+            newRecord.totalWithProfit = res.total;
+            //res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
               Object.entries(newRecord).filter(([_, value]) => {
@@ -381,7 +392,7 @@ export class InvoiceComponent {
         // quantity: item.quantity,
         amountPerUnit: mainItem.grossPrice,
         amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
-        total: mainItem.netValue,
+        total: (this.resultAfterTest) * (mainItem.grossPrice),
         profitMargin: mainItem.profitMargin,
         totalWithProfit: mainItem.totalWithProfit,
         // doNotPrint: mainItem.doNotPrint,
@@ -412,14 +423,15 @@ export class InvoiceComponent {
         this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
           next: (res) => {
             console.log('mainitem with total:', res);
-            newRecord.total = res.total;
+            //newRecord.total = res.total;
             newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
             // res.amountPerUnitWithProfit;
             // if (mainItem.amountPerUnitWithProfit !== undefined) {
             //   console.log(mainItem.amountPerUnitWithProfit);
             //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
             // }
-            newRecord.totalWithProfit = res.totalWithProfit;
+            newRecord.totalWithProfit = res.total;
+            //res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
               Object.entries(newRecord).filter(([_, value]) => {
@@ -470,7 +482,7 @@ export class InvoiceComponent {
         quantity: mainItem.quantity,
         amountPerUnit: mainItem.grossPrice,
         amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
-        total: mainItem.netValue,
+        total: (mainItem.quantity) * (mainItem.grossPrice),
         profitMargin: mainItem.profitMargin,
         totalWithProfit: mainItem.totalWithProfit,
         // doNotPrint: mainItem.doNotPrint,
@@ -501,14 +513,15 @@ export class InvoiceComponent {
         this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
           next: (res) => {
             console.log('mainitem with total:', res);
-            newRecord.total = res.total;
+            //newRecord.total = res.total;
             newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
             // res.amountPerUnitWithProfit;
             // if (mainItem.amountPerUnitWithProfit !== undefined) {
             //   console.log(mainItem.amountPerUnitWithProfit);
             //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
             // }
-            newRecord.totalWithProfit = res.totalWithProfit;
+            newRecord.totalWithProfit = res.total;
+            //res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
               Object.entries(newRecord).filter(([_, value]) => {
@@ -559,7 +572,7 @@ export class InvoiceComponent {
         quantity: mainItem.quantity,
         amountPerUnit: mainItem.grossPrice,
         amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
-        total: mainItem.netValue,
+        total: (mainItem.quantity) * (mainItem.grossPrice),
         profitMargin: mainItem.profitMargin,
         totalWithProfit: mainItem.totalWithProfit,
         // doNotPrint: mainItem.doNotPrint,
@@ -590,14 +603,15 @@ export class InvoiceComponent {
         this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
           next: (res) => {
             console.log('mainitem with total:', res);
-            newRecord.total = res.total;
+           // newRecord.total = res.total;
             newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
             //res.amountPerUnitWithProfit;
             // if (mainItem.amountPerUnitWithProfit !== undefined) {
             //   console.log(mainItem.amountPerUnitWithProfit);
             //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
             // }
-            newRecord.totalWithProfit = res.totalWithProfit;
+            newRecord.totalWithProfit = res.total;
+            //res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
               Object.entries(newRecord).filter(([_, value]) => {
@@ -657,7 +671,8 @@ export class InvoiceComponent {
         // quantity: item.quantity,
         amountPerUnit: mainItem.amountPerUnit,
         amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
-        total: mainItem.total,
+        total: (this.resultAfterTest) * (mainItem.amountPerUnit ?? 0),
+        //mainItem.total,
         profitMargin: mainItem.profitMargin,
         totalWithProfit: mainItem.totalWithProfit,
         doNotPrint: mainItem.doNotPrint,
@@ -689,14 +704,15 @@ export class InvoiceComponent {
         this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
           next: (res) => {
             console.log('mainitem with total:', res);
-            newRecord.total = res.total;
+            //newRecord.total = res.total;
             newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
             // res.amountPerUnitWithProfit;
             // if (mainItem.amountPerUnitWithProfit !== undefined) {
             //   console.log(mainItem.amountPerUnitWithProfit);
             //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
             // }
-            newRecord.totalWithProfit = res.totalWithProfit;
+            newRecord.totalWithProfit = res.total;
+            //res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
               Object.entries(newRecord).filter(([_, value]) => {
@@ -731,6 +747,7 @@ export class InvoiceComponent {
         //................
       }
     }
+
     if (!this.selectedServiceNumberRecordForExcel && this.selectedFormulaRecord && this.resultAfterTest) {
       const newRecord: MainItem = {
         //
@@ -747,7 +764,7 @@ export class InvoiceComponent {
         // quantity: item.quantity,
         amountPerUnit: mainItem.amountPerUnit,
         amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
-        total: mainItem.total,
+        total: (this.resultAfterTest) * (mainItem.amountPerUnit ?? 0),
         profitMargin: mainItem.profitMargin,
         totalWithProfit: mainItem.totalWithProfit,
         doNotPrint: mainItem.doNotPrint,
@@ -779,14 +796,15 @@ export class InvoiceComponent {
         this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
           next: (res) => {
             console.log('mainitem with total:', res);
-            newRecord.total = res.total;
+           // newRecord.total = res.total;
             newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
             //res.amountPerUnitWithProfit;
             // if (mainItem.amountPerUnitWithProfit !== undefined) {
             //   console.log(mainItem.amountPerUnitWithProfit);
             //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
             // }
-            newRecord.totalWithProfit = res.totalWithProfit;
+            newRecord.totalWithProfit = res.total;
+            //res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
               Object.entries(newRecord).filter(([_, value]) => {
@@ -836,7 +854,7 @@ export class InvoiceComponent {
         quantity: mainItem.quantity,
         amountPerUnit: mainItem.amountPerUnit,
         amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
-        total: mainItem.total,
+        total: (mainItem.quantity ?? 0) * (mainItem.amountPerUnit ?? 0),
         profitMargin: mainItem.profitMargin,
         totalWithProfit: mainItem.totalWithProfit,
         doNotPrint: mainItem.doNotPrint,
@@ -868,14 +886,15 @@ export class InvoiceComponent {
         this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
           next: (res) => {
             console.log('mainitem with total:', res);
-            newRecord.total = res.total;
+           // newRecord.total = res.total;
             newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
             // res.amountPerUnitWithProfit;
             // if (mainItem.amountPerUnitWithProfit !== undefined) {
             //   console.log(mainItem.amountPerUnitWithProfit);
             //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
             // }
-            newRecord.totalWithProfit = res.totalWithProfit;
+            newRecord.totalWithProfit = res.total;
+            //res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
               Object.entries(newRecord).filter(([_, value]) => {
@@ -926,7 +945,7 @@ export class InvoiceComponent {
         quantity: mainItem.quantity,
         amountPerUnit: mainItem.amountPerUnit,
         amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
-        total: mainItem.total,
+        total: (mainItem.quantity ?? 0) * (mainItem.amountPerUnit ?? 0),
         profitMargin: mainItem.profitMargin,
         totalWithProfit: mainItem.totalWithProfit,
         doNotPrint: mainItem.doNotPrint,
@@ -958,14 +977,15 @@ export class InvoiceComponent {
         this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
           next: (res) => {
             console.log('mainitem with total:', res);
-            newRecord.total = res.total;
+            //newRecord.total = res.total;
             newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
             //  res.amountPerUnitWithProfit;
             // if (mainItem.amountPerUnitWithProfit !== undefined) {
             //   console.log(mainItem.amountPerUnitWithProfit);
             //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
             // }
-            newRecord.totalWithProfit = res.totalWithProfit;
+            newRecord.totalWithProfit = res.total;
+            //res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
               Object.entries(newRecord).filter(([_, value]) => {
@@ -1267,7 +1287,8 @@ export class InvoiceComponent {
         description: this.newMainItem.description,
         quantity: this.newMainItem.quantity,
         amountPerUnit: this.newMainItem.amountPerUnit,
-        total: this.newMainItem.total,
+        total: (this.newMainItem.quantity ?? 0) * (this.newMainItem.amountPerUnit ?? 0),
+        //this.newMainItem.total,
         profitMargin: this.newMainItem.profitMargin,
         amountPerUnitWithProfit: this.newMainItem.amountPerUnitWithProfit,
         totalWithProfit: this.newMainItem.totalWithProfit,
@@ -1292,7 +1313,7 @@ export class InvoiceComponent {
       this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
         next: (res) => {
           console.log('mainitem with total:', res);
-          newRecord.total = res.total;
+          //newRecord.total = res.total;
           newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit;
           //res.amountPerUnitWithProfit;
           // this.newMainItem.amountPerUnitWithProfit !==0 || this.newMainItem.amountPerUnitWithProfit !== undefined || this.newMainItem.amountPerUnitWithProfit !== null
@@ -1300,7 +1321,8 @@ export class InvoiceComponent {
           //   console.log(this.newMainItem.amountPerUnitWithProfit);
           //   newRecord.amountPerUnitWithProfit = this.newMainItem.amountPerUnitWithProfit;
           // }
-          newRecord.totalWithProfit = res.totalWithProfit;
+          newRecord.totalWithProfit = res.total;
+          //res.totalWithProfit;
           console.log(' Record:', newRecord);
 
           const filteredRecord = Object.fromEntries(
@@ -1356,7 +1378,7 @@ export class InvoiceComponent {
         quantity: this.resultAfterTest,
         amountPerUnit: this.newMainItem.amountPerUnit,
         amountPerUnitWithProfit: this.newMainItem.amountPerUnitWithProfit,
-        total: this.newMainItem.total,
+        total: (this.resultAfterTest) * (this.newMainItem.amountPerUnit ?? 0),
         profitMargin: this.newMainItem.profitMargin,
         totalWithProfit: this.newMainItem.totalWithProfit,
         temporaryDeletion: 'temporary',
@@ -1388,14 +1410,15 @@ export class InvoiceComponent {
       this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
         next: (res) => {
           console.log('mainitem with total:', res);
-          newRecord.total = res.total;
+          //newRecord.total = res.total;
           newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
           //res.amountPerUnitWithProfit;
           // if (this.newMainItem.amountPerUnitWithProfit !== undefined) {
           //   console.log(this.newMainItem.amountPerUnitWithProfit);
           //   newRecord.amountPerUnitWithProfit = this.newMainItem.amountPerUnitWithProfit;
           // }
-          newRecord.totalWithProfit = res.totalWithProfit;
+          newRecord.totalWithProfit = res.total;
+          //res.totalWithProfit;
           const filteredRecord = Object.fromEntries(
             Object.entries(newRecord).filter(([_, value]) => {
               return (
@@ -1445,7 +1468,7 @@ export class InvoiceComponent {
         quantity: this.newMainItem.quantity,
         amountPerUnit: this.newMainItem.amountPerUnit,
         amountPerUnitWithProfit: this.newMainItem.amountPerUnitWithProfit,
-        total: this.newMainItem.total,
+        total: (this.newMainItem.quantity ?? 0) * (this.newMainItem.amountPerUnit ?? 0),
         profitMargin: this.newMainItem.profitMargin,
         totalWithProfit: this.newMainItem.totalWithProfit,
         temporaryDeletion: 'temporary',
@@ -1477,14 +1500,15 @@ export class InvoiceComponent {
       this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
         next: (res) => {
           console.log('mainitem with total:', res);
-          newRecord.total = res.total;
+          //newRecord.total = res.total;
           newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
           //res.amountPerUnitWithProfit;
           // if (this.newMainItem.amountPerUnitWithProfit !== undefined) {
           //   console.log(this.newMainItem.amountPerUnitWithProfit);
           //   newRecord.amountPerUnitWithProfit = this.newMainItem.amountPerUnitWithProfit;
           // }
-          newRecord.totalWithProfit = res.totalWithProfit;
+          newRecord.totalWithProfit = res.total;
+          // res.totalWithProfit;
           const filteredRecord = Object.fromEntries(
             Object.entries(newRecord).filter(([_, value]) => {
               return (
@@ -1533,7 +1557,7 @@ export class InvoiceComponent {
         quantity: this.resultAfterTest,
         amountPerUnit: this.newMainItem.amountPerUnit,
         amountPerUnitWithProfit: this.newMainItem.amountPerUnitWithProfit,
-        total: this.newMainItem.total,
+        total: (this.resultAfterTest) * (this.newMainItem.amountPerUnit ?? 0),
         profitMargin: this.newMainItem.profitMargin,
         totalWithProfit: this.newMainItem.totalWithProfit,
         temporaryDeletion: 'temporary',
@@ -1565,14 +1589,15 @@ export class InvoiceComponent {
       this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
         next: (res) => {
           console.log('mainitem with total:', res);
-          newRecord.total = res.total;
+         // newRecord.total = res.total;
           newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
           //res.amountPerUnitWithProfit;
           // if (this.newMainItem.amountPerUnitWithProfit !== undefined) {
           //   console.log(this.newMainItem.amountPerUnitWithProfit);
           //   newRecord.amountPerUnitWithProfit = this.newMainItem.amountPerUnitWithProfit;
           // }
-          newRecord.totalWithProfit = res.totalWithProfit;
+          newRecord.totalWithProfit = res.total;
+          //res.totalWithProfit;
           const filteredRecord = Object.fromEntries(
             Object.entries(newRecord).filter(([_, value]) => {
               return (
@@ -2211,15 +2236,16 @@ export class InvoiceComponent {
               'selected',
             ])
           ),
-          quantity: item.quantity,
-          amountPerUnit: item.amountPerUnit,
           serviceNumberCode: item.serviceNumberCode,
-          unitOfMeasurementCode: item.unitOfMeasurementCode,
-          currencyCode: item.currencyCode,
-          formulaCode: item.formulaCode,
           description: item.description,
+          quantity: item.quantity,
+          unitOfMeasurementCode: item.unitOfMeasurementCode,
+          formulaCode: item.formulaCode,
+          amountPerUnit: item.amountPerUnit,
+          currencyCode: item.currencyCode,
           total: item.total,
           profitMargin: item.profitMargin,
+          amountPerUnitWithProfit:item.amountPerUnitWithProfit,
           totalWithProfit: item.totalWithProfit,
         }));
         console.log(saveRequests);
@@ -2287,6 +2313,7 @@ export class InvoiceComponent {
             'invoiceSubItemCode',
           ])
         ),
+        total :(record.quantity ?? 0) * (record.amountPerUnit ?? 0),
         unitOfMeasurementCode:
           this.updateSelectedServiceNumberRecord.unitOfMeasurementCode,
         //this.updateSelectedServiceNumberRecord.baseUnitOfMeasurement,
@@ -2306,14 +2333,15 @@ export class InvoiceComponent {
       this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
         next: (res) => {
           console.log('mainitem with total:', res);
-          newRecord.total = res.total;
+          //newRecord.total = res.total;
           newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
           // res.amountPerUnitWithProfit;
           // if (record.amountPerUnitWithProfit !== null) {
           //   console.log(record.amountPerUnitWithProfit);
           //   newRecord.amountPerUnitWithProfit = record.amountPerUnitWithProfit;
           // }
-          newRecord.totalWithProfit = res.totalWithProfit;
+          newRecord.totalWithProfit = res.total;
+          //res.totalWithProfit;
           const mainItemIndex = this.mainItemsRecords.findIndex(
             (item) => item.invoiceMainItemCode === invoiceMainItemCode
           );
@@ -2360,6 +2388,7 @@ export class InvoiceComponent {
             'invoiceSubItemCode',
           ])
         ),
+        total :(this.resultAfterTestUpdate ?? 0) * (record.amountPerUnit ?? 0),
         unitOfMeasurementCode:
           this.updateSelectedServiceNumberRecord.unitOfMeasurementCode,
         // this.updateSelectedServiceNumberRecord.baseUnitOfMeasurement,
@@ -2384,14 +2413,15 @@ export class InvoiceComponent {
         next: (res) => {
           console.log('mainitem with total:', res);
           // this.totalValue = 0;
-          newRecord.total = res.total;
+         // newRecord.total = res.total;
           newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
           //res.amountPerUnitWithProfit;
           // if (record.amountPerUnitWithProfit !== null) {
           //   console.log(record.amountPerUnitWithProfit);
           //   newRecord.amountPerUnitWithProfit = record.amountPerUnitWithProfit;
           // }
-          newRecord.totalWithProfit = res.totalWithProfit;
+          newRecord.totalWithProfit = res.total;
+          //res.totalWithProfit;
 
           // Update mainItemsRecords array in the component to reflect the changes
           const mainItemIndex = this.mainItemsRecords.findIndex(
@@ -2440,6 +2470,7 @@ export class InvoiceComponent {
           ])
         ),
         quantity: this.resultAfterTestUpdate,
+        total :(this.resultAfterTestUpdate ?? 0) * (record.amountPerUnit ?? 0),
       };
       console.log(newRecord);
 
@@ -2459,14 +2490,15 @@ export class InvoiceComponent {
         next: (res) => {
           console.log('mainitem with total:', res);
           // this.totalValue = 0;
-          newRecord.total = res.total;
+         // newRecord.total = res.total;
           newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
           //res.amountPerUnitWithProfit;
           // if (record.amountPerUnitWithProfit !== null) {
           //   console.log(record.amountPerUnitWithProfit);
           //   newRecord.amountPerUnitWithProfit = record.amountPerUnitWithProfit;
           // }
-          newRecord.totalWithProfit = res.totalWithProfit;
+          newRecord.totalWithProfit = res.total;
+          //res.totalWithProfit;
 
           // Update mainItemsRecords array in the component to reflect the changes
           const mainItemIndex = this.mainItemsRecords.findIndex(
@@ -2512,34 +2544,47 @@ export class InvoiceComponent {
     ) {
       console.log({ ...mainItemWithoutMainItemCode });
       console.log({ updatedMainItem });
+      console.log({ record });
+
+      const newRecord: MainItem = {
+        ...record, // Copy all properties from the original record
+        subItems: (record?.subItems ?? []).map((subItem) =>
+          this.removeProperties(subItem, [
+            'invoiceMainItemCode',
+            'invoiceSubItemCode',
+          ])
+        ),
+        total :(record.quantity ?? 0) * (record.amountPerUnit ?? 0),
+      };
 
       //....................
       const bodyRequest: any = {
-        quantity: updatedMainItem.quantity,
-        amountPerUnit: updatedMainItem.amountPerUnitWithProfit ? updatedMainItem.amountPerUnitWithProfit: updatedMainItem.amountPerUnit
+        quantity: newRecord.quantity,
+        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
         //updatedMainItem.amountPerUnit,
       };
-      if (updatedMainItem.profitMargin && updatedMainItem.profitMargin !== 0) {
-        bodyRequest.profitMargin = updatedMainItem.profitMargin;
+      if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
+        bodyRequest.profitMargin = newRecord.profitMargin;
       }
       this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
         next: (res) => {
           console.log('mainitem with total:', res);
-          updatedMainItem.total = res.total;
-          updatedMainItem.amountPerUnitWithProfit =  updatedMainItem.amountPerUnitWithProfit ? updatedMainItem.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+         // updatedMainItem.total = res.total;
+         newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
           // res.amountPerUnitWithProfit;
           // if (record.amountPerUnitWithProfit !== null) {
           //   console.log(record.amountPerUnitWithProfit);
           //   updatedMainItem.amountPerUnitWithProfit = record.amountPerUnitWithProfit;
           // }
-          updatedMainItem.totalWithProfit = res.totalWithProfit;
+          newRecord.totalWithProfit = res.total;
+          //res.totalWithProfit;
           const mainItemIndex = this.mainItemsRecords.findIndex(
             (item) => item.invoiceMainItemCode === invoiceMainItemCode
           );
           if (mainItemIndex > -1) {
             this.mainItemsRecords[mainItemIndex] = {
               ...this.mainItemsRecords[mainItemIndex],
-              ...updatedMainItem,
+              ...newRecord,
             };
             this.updateTotalValueAfterAction();
           }

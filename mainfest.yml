@@ -9,5 +9,3 @@ applications:
 
   env:
       TENANT_HOST_PATTERN: '^(.*)\\.cf.eu10-004.hana.ondemand.com\.com$'
-
-

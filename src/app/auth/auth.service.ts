@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { catchError, tap } from 'rxjs/operators';
-import { throwError, BehaviorSubject, of } from 'rxjs';
+import { throwError, BehaviorSubject, of, Observable } from 'rxjs';
 import { AuthUser } from './auth-user.model';
 import { environment } from '../../environments/environment';
 
@@ -13,21 +13,64 @@ export interface AuthResponseBackend {
   token_type: string;
   expires_in: number;
 }
+// login With AppRouter:
+interface AuthResponse {
+  access_token: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  private clientID = environment.clientID
-  private clientSecret = environment.clientSecret
-
   
+
+    private clientID = environment.clientID
+   private clientSecret = environment.clientSecret
   private authUrl = "https://proxy-server.cfapps.eu10-004.hana.ondemand.com/auth"
   private registerUrl = "https://proxy-server.cfapps.eu10-004.hana.ondemand.com/api/iasusers"
 
   loggedInUser = new BehaviorSubject<AuthUser | null>(null);
   private tokenExpirationTimer: any;
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router) { 
+    //this.loadTokenFromStorage();
+  }
+
+  // login With AppRouter:
+  // private tokenUrl = 'https://devstage.authentication.eu10.hana.ondemand.com/oauth/token';
+  // private clientID = 'sb-sd-app!t527548';
+  // private clientSecret = 'dd8c0d32-5dc8-4275-b42a-79e7646e264b$kSs7WB_OONzQ3lZB7OBVq8rpuaKPkq49kDhu1Mq0n1A=';
+
+  // loggedInUserToken = new BehaviorSubject<{ token: string } | null>(null);
+
+  // getToken(): Observable<any> {
+  //   const headers = new HttpHeaders({
+  //     'Authorization': 'Basic ' + btoa(`${this.clientID}:${this.clientSecret}`),
+  //     'Content-Type': 'application/x-www-form-urlencoded'
+  //   });
+
+
+  //  console.log(headers)
+  //  const data = new URLSearchParams();
+  //  data.set('grant_type', 'client_credentials');
+
+  //   return this.http.post<AuthResponse>(this.tokenUrl, data.toString(), { headers })
+  //   .pipe(
+  //     tap(resData => {
+  //       console.log('Access Token:', resData.access_token);
+  //       localStorage.setItem('token', resData.access_token);
+  //       const user = { token: resData.access_token }; 
+  //       this.loggedInUserToken.next(user); // Update BehaviorSubject
+  //     })
+  //   );
+  // }
+  // private loadTokenFromStorage() {
+  //   const savedToken = localStorage.getItem('token');
+  //   if (savedToken) {
+  //     this.loggedInUserToken.next({ token: savedToken });
+  //   }
+  // }
+
+  // end login With AppRouter:
 
   signUp(value: string, familyName: string, givenName: string, userName: string) {
     const headers = new HttpHeaders({

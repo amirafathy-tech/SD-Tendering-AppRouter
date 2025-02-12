@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AuthService } from './auth.service';
 
 
 @Component({
@@ -8,6 +9,15 @@ import { Component } from '@angular/core';
 })
 export class AuthComponent {
 
-  constructor() { }
+  token: string = '';
+  constructor(private authService: AuthService) { }
+
+  // onLogin() {
+  //   this.authService.getToken().subscribe(
+  //     () => console.log('Token retrieved and stored successfully!'),
+  //     error => console.error('Error fetching token:', error)
+  //   );
+  // }
 
 }
+
