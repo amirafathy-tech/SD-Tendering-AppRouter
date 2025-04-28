@@ -9,9 +9,8 @@ import { Router } from '@angular/router';
 export class HomePageComponent {
 
 
-  constructor(private router: Router) {}
-  navigateLoginPage(){
-    // alert("login")
+  constructor(private router: Router) { }
+  navigateLoginPage() {
     this.router.navigate(['/login']);
   }
 

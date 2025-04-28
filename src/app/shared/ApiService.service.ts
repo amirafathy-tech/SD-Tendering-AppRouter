@@ -25,15 +25,11 @@ export class ApiService {
       params = params.set('keyword', queryParam);
       console.log(params);
     }
-   // headers =new HttpHeaders().set('Authorization',`Bearer ${ localStorage.getItem('token')}`)
     console.log(this.http.get<T>(`${this.baseUrl}/${url}`, { params }));
     return this.http.get<T>(`${this.baseUrl}/${url}`);
   }
 
   getID<T>(url: string, id: number, params?: HttpParams, headers?: HttpHeaders): Observable<T> {
-    //const options = { params, headers };
-
-   // headers =new HttpHeaders().set('Authorization',`Bearer ${ localStorage.getItem('token')}`)
     console.log(this.http.get<T>(`${this.baseUrl}/${url}/${id}`));
     return this.http.get<T>(`${this.baseUrl}/${url}/${id}`);
   }
@@ -59,10 +55,4 @@ export class ApiService {
     return this.http.delete<T>(`${this.baseUrl}/${url}/${id}`);
   }
 
-  deleteFromApp<T>(url: string, headers?: HttpHeaders): Observable<T> {
-    return this.http.delete<T>(`${this.baseUrl}/${url}`);
-  }
-  updateApp<T>(url: string,body?: any,  headers?: HttpHeaders): Observable<T> {
-    return this.http.patch<T>(`${this.baseUrl}/${url}`, body);
-  }
 }

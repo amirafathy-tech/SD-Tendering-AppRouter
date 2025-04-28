@@ -11,7 +11,6 @@ import { Router } from '@angular/router';
 import { ModelEntity, ModelSpecDetails } from '../models/model-specs.model';
 import { forkJoin } from 'rxjs';
 import * as XLSX from 'xlsx';
-import { main } from '@popperjs/core';
 
 @Component({
   selector: 'app-invoice-test',
@@ -26,22 +25,17 @@ export class InvoiceComponent {
   itemNumber!: number;
   customerId!: number;
   cloudCurrency!: string;
-  savedDBApp: boolean = false;
-
   itemText: string = '';
-
+  ///////////////////////////
+  savedDBApp: boolean = false;
   savedInMemory: boolean = false;
-
-
   displayImportsDialog = false;
   displayModelSpecsDialog = false;
   displayModelSpecsDetailsDialog = false;
   displayExcelDialog = false;
-
   selectedModelSpecsDetails: ModelSpecDetails[] = [];
   models: ModelEntity[] = [];
   modelSpecsDetails: ModelSpecDetails[] = [];
-
   // Pagination:
   loading: boolean = true;
   loadingSubItems: boolean = true;
@@ -90,10 +84,8 @@ export class InvoiceComponent {
 
   recordsUnitOfMeasure: UnitOfMeasure[] = [];
   selectedUnitOfMeasure!: string;
-
   // uom for subitem:
   selectedUnitOfMeasureSubItem!: string;
-
   recordsCurrency!: any[];
   selectedCurrency: string = '';
   // currency for subitem:
@@ -126,7 +118,6 @@ export class InvoiceComponent {
   }
 
   ngOnInit() {
-
     this._ApiService
       .get<ServiceMaster[]>('servicenumbers')
       .subscribe((response) => {
@@ -154,7 +145,6 @@ export class InvoiceComponent {
     } else {
       this.getCloudDocument();
     }
-
     this._ApiService.get<SubItem[]>('subitems').subscribe((response) => {
       this.subItemsRecords = response;
       this.loadingSubItems = false;
@@ -162,7 +152,6 @@ export class InvoiceComponent {
   }
 
   getCloudDocument() {
-    //localhost:8080/mainitems/referenceid?referenceId=20000000&salesQuotationItem=20
     this._ApiService
       .get<MainItem[]>(
         `mainitems/referenceid?referenceId=${this.documentNumber}&salesQuotationItem=${this.itemNumber}`
@@ -177,18 +166,13 @@ export class InvoiceComponent {
             : '';
           console.log(this.itemText);
           console.log(this.mainItemsRecords);
-          console.log(this.mainItemsRecords[0].subItems);
-          console.log(this.mainItemsRecords[0].subItems.length);
-
           this.originalMainItemsRecords = [...this.mainItemsRecords];
-
           this.loading = false;
           this.totalValue = this.mainItemsRecords.reduce(
             (sum, record) => sum + record.totalWithProfit,
             0
           );
           console.log('Total Value:', this.totalValue);
-          // this.cdr.detectChanges();
         },
         error: (err) => {
           console.log(err);
@@ -207,938 +191,7 @@ export class InvoiceComponent {
         complete: () => { },
       });
   }
-
-  reflectProfitMargin(mainItem: any): void {
-    if (mainItem.amountPerUnitWithProfit != null && mainItem.amountPerUnitWithProfit !== 0) {
-      mainItem.profitMargin = ((mainItem.amountPerUnitWithProfit - (mainItem.amountPerUnit ?? 0)) / (mainItem.amountPerUnit ?? 1)) * 100;
-    }
-    //  else {
-    //   mainItem.profitMargin = 0; // Ensure no NaN values
-    // }
-  }
-
-  // search:
-  originalMainItemsRecords: MainItem[] = []; // Keep a copy of the original records
-
-
-  filterRecords(): void {
-    //  this.originalMainItemsRecords = [...this.mainItemsRecords];
-    if (this.searchKey && this.searchKey.trim() !== ' ') {
-      this.mainItemsRecords = this.originalMainItemsRecords.filter((record: any) =>
-        record.description.toLowerCase().includes(this.searchKey.toLowerCase())
-      );
-    } else {
-      //  this.mainItemsRecords = [...this.originalMainItemsRecords];
-      console.log("else");
-
-      //this.mainItemsRecords = [...this.mainItemsRecords];
-      this.mainItemsRecords = [...this.originalMainItemsRecords];
-      console.log(this.mainItemsRecords);
-
-    }
-  }
-
-
-  // Imports ()
-  showImportsDialog() {
-    this.displayImportsDialog = true;
-  }
-  showExcelDialog() {
-    this.displayExcelDialog = true;
-  }
-  showModelSpecsDialog() {
-    this.displayModelSpecsDialog = true;
-    this._ApiService.get<ModelEntity[]>(`modelspecs`).subscribe({
-      next: (res) => {
-        // const uniqueRecords = res.filter(newRecord => 
-        //   !this.mainItemsRecords.some(existingRecord => 
-        //     existingRecord.invoiceMainItemCode === newRecord.modelSpecCode
-        //   )
-        // );
-        this.models = res.sort((a, b) => a.modelSpecCode - b.modelSpecCode);
-        console.log(this.models);
-      }
-      , error: (err) => {
-        console.log(err);
-      },
-      complete: () => {
-      }
-    });
-  }
-  showModelSpecsDetailsDialog(model: ModelEntity) {
-    this.displayModelSpecsDetailsDialog = true;
-    const detailObservables = model.modelSpecDetailsCode.map(code =>
-      this._ApiService.getID<ModelSpecDetails>('modelspecdetails', code)
-    );
-    forkJoin(detailObservables).subscribe(records => {
-      this.modelSpecsDetails = records.sort((a, b) => b.modelSpecDetailsCode - a.modelSpecDetailsCode);
-    });
-  }
-  saveSelectionModelSpecsDetails() {
-    console.log('Selected items:', this.selectedModelSpecsDetails);
-    this.displayModelSpecsDetailsDialog = false;
-    this.displayModelSpecsDialog = false;
-    this.displayImportsDialog = false;
-  }
-
-  // for selected models specs details:
-  saveModelSpecsDetails(mainItem: ModelSpecDetails) {
-    console.log(mainItem);
-    if (this.selectedServiceNumberRecordForModels && this.selectedFormulaRecord && this.resultAfterTest) {
-      const newRecord: MainItem = {
-        //
-        invoiceMainItemCode: 0,
-        originalIndex: this.mainItemsRecords.length + 1,
-        //
-        serviceNumberCode: mainItem.serviceNumberCode,
-        unitOfMeasurementCode: this.selectedServiceNumberRecordForModels.unitOfMeasurementCode,
-        currencyCode: mainItem.currencyCode,
-        description: this.selectedServiceNumberRecordForModels.description,
-
-        formulaCode: this.selectedFormula,
-        quantity: this.resultAfterTest,
-        // quantity: item.quantity,
-        amountPerUnit: mainItem.grossPrice,
-        amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
-        total: (this.resultAfterTest) * (mainItem.grossPrice),
-        //mainItem.netValue,
-        profitMargin: mainItem.profitMargin,
-        totalWithProfit: mainItem.totalWithProfit,
-        // doNotPrint: mainItem.doNotPrint,
-        Type: '',
-        isPersisted: false,
-        subItems: []
-      }
-      console.log(newRecord);
-      if (newRecord.quantity === 0) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: ' Quantity is required',
-          life: 3000
-        });
-      }
-      else {
-        console.log(newRecord);
-        //................
-        const bodyRequest: any = {
-          quantity: newRecord.quantity,
-          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
-          //newRecord.amountPerUnit,
-        };
-        if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
-          bodyRequest.profitMargin = newRecord.profitMargin;
-        }
-        this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
-          next: (res) => {
-            console.log('mainitem with total:', res);
-            //newRecord.total = res.total;
-            newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
-            // res.amountPerUnitWithProfit;
-            // if (mainItem.amountPerUnitWithProfit !== undefined) {
-            //   console.log(mainItem.amountPerUnitWithProfit);
-            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
-            // }
-            newRecord.totalWithProfit = res.total;
-            //res.totalWithProfit;
-            console.log(' Record:', newRecord);
-            const filteredRecord = Object.fromEntries(
-              Object.entries(newRecord).filter(([_, value]) => {
-                return value !== '' && value !== 0 && value !== undefined && value !== null;
-              })
-            ) as MainItem;
-            console.log(filteredRecord);
-            this.addMainItem(filteredRecord);
-
-            this.mainItemsRecords = [...this.mainItemsRecords];
-
-            this.originalMainItemsRecords = [...this.mainItemsRecords];
-
-            this.savedInMemory = true;
-            this.updateTotalValueAfterAction();
-            console.log(this.mainItemsRecords);
-            this.resetNewMainItem();
-            this.selectedServiceNumberRecordForModels = undefined;
-            this.selectedFormula = '';
-            this.selectedFormulaRecord = undefined;
-            this.resultAfterTest = undefined;
-
-            const index = this.selectedModelSpecsDetails.findIndex(item => item.modelSpecDetailsCode === mainItem.modelSpecDetailsCode);
-            if (index !== -1) {
-              this.selectedModelSpecsDetails.splice(index, 1);
-            }
-          }, error: (err) => {
-            console.log(err);
-          },
-          complete: () => {
-          }
-        });
-        //................
-      }
-    }
-    if (!this.selectedServiceNumberRecordForModels && this.selectedFormulaRecord && this.resultAfterTest) {
-      const newRecord: MainItem = {
-        //
-        invoiceMainItemCode: 0,
-        originalIndex: this.mainItemsRecords.length + 1,
-        //
-        serviceNumberCode: mainItem.serviceNumberCode,
-        unitOfMeasurementCode: mainItem.unitOfMeasurementCode,
-        currencyCode: mainItem.currencyCode,
-        description: mainItem.shortText,
-
-        formulaCode: this.selectedFormula,
-        quantity: this.resultAfterTest,
-        // quantity: item.quantity,
-        amountPerUnit: mainItem.grossPrice,
-        amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
-        total: (this.resultAfterTest) * (mainItem.grossPrice),
-        profitMargin: mainItem.profitMargin,
-        totalWithProfit: mainItem.totalWithProfit,
-        // doNotPrint: mainItem.doNotPrint,
-        Type: '',
-        isPersisted: false,
-        subItems: []
-      }
-      console.log(newRecord);
-      if (newRecord.quantity === 0) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: ' Quantity is required',
-          life: 3000
-        });
-      }
-      else {
-        console.log(newRecord);
-        //................
-        const bodyRequest: any = {
-          quantity: newRecord.quantity,
-          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
-          //newRecord.amountPerUnit,
-        };
-        if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
-          bodyRequest.profitMargin = newRecord.profitMargin;
-        }
-        this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
-          next: (res) => {
-            console.log('mainitem with total:', res);
-            //newRecord.total = res.total;
-            newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
-            // res.amountPerUnitWithProfit;
-            // if (mainItem.amountPerUnitWithProfit !== undefined) {
-            //   console.log(mainItem.amountPerUnitWithProfit);
-            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
-            // }
-            newRecord.totalWithProfit = res.total;
-            //res.totalWithProfit;
-            console.log(' Record:', newRecord);
-            const filteredRecord = Object.fromEntries(
-              Object.entries(newRecord).filter(([_, value]) => {
-                return value !== '' && value !== 0 && value !== undefined && value !== null;
-              })
-            ) as MainItem;
-            console.log(filteredRecord);
-            this.addMainItem(filteredRecord);
-
-            this.mainItemsRecords = [...this.mainItemsRecords];
-
-            this.originalMainItemsRecords = [...this.mainItemsRecords];
-
-            this.savedInMemory = true;
-            this.updateTotalValueAfterAction();
-            console.log(this.mainItemsRecords);
-            this.resetNewMainItem();
-            this.selectedServiceNumberRecordForModels = undefined;
-            this.selectedFormula = '';
-            this.selectedFormulaRecord = undefined;
-            this.resultAfterTest = undefined;
-
-            const index = this.selectedModelSpecsDetails.findIndex(item => item.modelSpecDetailsCode === mainItem.modelSpecDetailsCode);
-            if (index !== -1) {
-              this.selectedModelSpecsDetails.splice(index, 1);
-            }
-          }, error: (err) => {
-            console.log(err);
-          },
-          complete: () => {
-          }
-        });
-        //................
-      }
-    }
-    if (this.selectedServiceNumberRecordForModels && !this.selectedFormulaRecord && !this.resultAfterTest) {
-      const newRecord: MainItem = {
-        //
-        invoiceMainItemCode: 0,
-        originalIndex: this.mainItemsRecords.length + 1,
-        //
-        serviceNumberCode: mainItem.serviceNumberCode,
-        unitOfMeasurementCode: this.selectedServiceNumberRecordForModels.unitOfMeasurementCode,
-        currencyCode: mainItem.currencyCode,
-        description: this.selectedServiceNumberRecordForModels.description,
-
-        formulaCode: mainItem.formulaCode,
-        quantity: mainItem.quantity,
-        amountPerUnit: mainItem.grossPrice,
-        amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
-        total: (mainItem.quantity) * (mainItem.grossPrice),
-        profitMargin: mainItem.profitMargin,
-        totalWithProfit: mainItem.totalWithProfit,
-        // doNotPrint: mainItem.doNotPrint,
-        Type: '',
-        isPersisted: false,
-        subItems: []
-      }
-      console.log(newRecord);
-      if (newRecord.quantity === 0) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: ' Quantity is required',
-          life: 3000
-        });
-      }
-      else {
-        console.log(newRecord);
-        //................
-        const bodyRequest: any = {
-          quantity: newRecord.quantity,
-          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
-          //newRecord.amountPerUnit,
-        };
-        if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
-          bodyRequest.profitMargin = newRecord.profitMargin;
-        }
-        this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
-          next: (res) => {
-            console.log('mainitem with total:', res);
-            //newRecord.total = res.total;
-            newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
-            // res.amountPerUnitWithProfit;
-            // if (mainItem.amountPerUnitWithProfit !== undefined) {
-            //   console.log(mainItem.amountPerUnitWithProfit);
-            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
-            // }
-            newRecord.totalWithProfit = res.total;
-            //res.totalWithProfit;
-            console.log(' Record:', newRecord);
-            const filteredRecord = Object.fromEntries(
-              Object.entries(newRecord).filter(([_, value]) => {
-                return value !== '' && value !== 0 && value !== undefined && value !== null;
-              })
-            ) as MainItem;
-            console.log(filteredRecord);
-            this.addMainItem(filteredRecord);
-
-            this.mainItemsRecords = [...this.mainItemsRecords];
-
-            this.originalMainItemsRecords = [...this.mainItemsRecords];
-
-            this.savedInMemory = true;
-            this.updateTotalValueAfterAction();
-            console.log(this.mainItemsRecords);
-            this.resetNewMainItem();
-            this.selectedServiceNumberRecordForModels = undefined;
-            this.selectedFormula = '';
-            this.selectedFormulaRecord = undefined;
-            this.resultAfterTest = undefined;
-
-            const index = this.selectedModelSpecsDetails.findIndex(item => item.modelSpecDetailsCode === mainItem.modelSpecDetailsCode);
-            if (index !== -1) {
-              this.selectedModelSpecsDetails.splice(index, 1);
-            }
-          }, error: (err) => {
-            console.log(err);
-          },
-          complete: () => {
-          }
-        });
-        //................
-      }
-    }
-    if (!this.selectedServiceNumberRecordForModels && !this.selectedFormulaRecord && !this.resultAfterTest) {
-      const newRecord: MainItem = {
-        //
-        invoiceMainItemCode: 0,
-        originalIndex: this.mainItemsRecords.length + 1,
-        //
-        serviceNumberCode: mainItem.serviceNumberCode,
-        unitOfMeasurementCode: mainItem.unitOfMeasurementCode,
-        currencyCode: mainItem.currencyCode,
-        description: mainItem.shortText,
-
-        formulaCode: mainItem.formulaCode,
-        quantity: mainItem.quantity,
-        amountPerUnit: mainItem.grossPrice,
-        amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
-        total: (mainItem.quantity) * (mainItem.grossPrice),
-        profitMargin: mainItem.profitMargin,
-        totalWithProfit: mainItem.totalWithProfit,
-        // doNotPrint: mainItem.doNotPrint,
-        Type: '',
-        isPersisted: false,
-        subItems: []
-      }
-      console.log(newRecord);
-      if (newRecord.quantity === 0) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: ' Quantity is required',
-          life: 3000
-        });
-      }
-      else {
-        console.log(newRecord);
-        //................
-        const bodyRequest: any = {
-          quantity: newRecord.quantity,
-          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
-          //newRecord.amountPerUnit,
-        };
-        if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
-          bodyRequest.profitMargin = newRecord.profitMargin;
-        }
-        this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
-          next: (res) => {
-            console.log('mainitem with total:', res);
-           // newRecord.total = res.total;
-            newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
-            //res.amountPerUnitWithProfit;
-            // if (mainItem.amountPerUnitWithProfit !== undefined) {
-            //   console.log(mainItem.amountPerUnitWithProfit);
-            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
-            // }
-            newRecord.totalWithProfit = res.total;
-            //res.totalWithProfit;
-            console.log(' Record:', newRecord);
-            const filteredRecord = Object.fromEntries(
-              Object.entries(newRecord).filter(([_, value]) => {
-                return value !== '' && value !== 0 && value !== undefined && value !== null;
-              })
-            ) as MainItem;
-            console.log(filteredRecord);
-            this.addMainItem(filteredRecord);
-
-            this.mainItemsRecords = [...this.mainItemsRecords];
-
-            this.originalMainItemsRecords = [...this.mainItemsRecords];
-
-            this.savedInMemory = true;
-            this.updateTotalValueAfterAction();
-            console.log(this.mainItemsRecords);
-            this.resetNewMainItem();
-            this.selectedServiceNumberRecordForModels = undefined;
-            this.selectedFormula = '';
-            this.selectedFormulaRecord = undefined;
-            this.resultAfterTest = undefined;
-
-            const index = this.selectedModelSpecsDetails.findIndex(item => item.modelSpecDetailsCode === mainItem.modelSpecDetailsCode);
-            if (index !== -1) {
-              this.selectedModelSpecsDetails.splice(index, 1);
-            }
-          }, error: (err) => {
-            console.log(err);
-          },
-          complete: () => {
-          }
-        });
-        //................
-      }
-    }
-  }
-
-  cancelModelSpecsDetails(item: any): void {
-    this.selectedModelSpecsDetails = this.selectedModelSpecsDetails.filter(i => i !== item);
-  }
-  // for selected from excel sheet:
-  saveMainItemFromExcel(mainItem: MainItem) {
-    console.log(mainItem);
-    if (this.selectedServiceNumberRecordForExcel && this.selectedFormulaRecord && this.resultAfterTest) {
-      const newRecord: MainItem = {
-        //
-        invoiceMainItemCode: 0,
-        originalIndex: this.mainItemsRecords.length + 1,
-        //
-        serviceNumberCode: mainItem.serviceNumberCode,
-        unitOfMeasurementCode: this.selectedServiceNumberRecordForExcel.unitOfMeasurementCode,
-        currencyCode: mainItem.currencyCode,
-        description: this.selectedServiceNumberRecordForExcel.description,
-
-        formulaCode: this.selectedFormula,
-        quantity: this.resultAfterTest,
-        // quantity: item.quantity,
-        amountPerUnit: mainItem.amountPerUnit,
-        amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
-        total: (this.resultAfterTest) * (mainItem.amountPerUnit ?? 0),
-        //mainItem.total,
-        profitMargin: mainItem.profitMargin,
-        totalWithProfit: mainItem.totalWithProfit,
-        doNotPrint: mainItem.doNotPrint,
-        Type: '',
-        isPersisted: false,
-        // subItems: []
-        subItems: mainItem.subItems
-      }
-      console.log(newRecord);
-      if (newRecord.quantity === 0) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: ' Quantity is required',
-          life: 3000
-        });
-      }
-      else {
-        console.log(newRecord);
-        //................
-        const bodyRequest: any = {
-          quantity: newRecord.quantity,
-          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
-          //newRecord.amountPerUnit,
-        };
-        if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
-          bodyRequest.profitMargin = newRecord.profitMargin;
-        }
-        this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
-          next: (res) => {
-            console.log('mainitem with total:', res);
-            //newRecord.total = res.total;
-            newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
-            // res.amountPerUnitWithProfit;
-            // if (mainItem.amountPerUnitWithProfit !== undefined) {
-            //   console.log(mainItem.amountPerUnitWithProfit);
-            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
-            // }
-            newRecord.totalWithProfit = res.total;
-            //res.totalWithProfit;
-            console.log(' Record:', newRecord);
-            const filteredRecord = Object.fromEntries(
-              Object.entries(newRecord).filter(([_, value]) => {
-                return value !== '' && value !== 0 && value !== undefined && value !== null;
-              })
-            ) as MainItem;
-            console.log(filteredRecord);
-            this.addMainItem(filteredRecord);
-
-            this.mainItemsRecords = [...this.mainItemsRecords];
-            this.originalMainItemsRecords = [...this.mainItemsRecords];
-
-            this.savedInMemory = true;
-            this.updateTotalValueAfterAction();
-            console.log(this.mainItemsRecords);
-            this.resetNewMainItem();
-            this.selectedServiceNumberRecordForExcel = undefined;
-            this.selectedFormula = '';
-            this.selectedFormulaRecord = undefined;
-            this.resultAfterTest = undefined;
-
-            const index = this.parsedData.findIndex(item => item.invoiceMainItemCode === mainItem.invoiceMainItemCode);
-            if (index !== -1) {
-              this.parsedData.splice(index, 1);
-            }
-          }, error: (err) => {
-            console.log(err);
-          },
-          complete: () => {
-          }
-        });
-        //................
-      }
-    }
-
-    if (!this.selectedServiceNumberRecordForExcel && this.selectedFormulaRecord && this.resultAfterTest) {
-      const newRecord: MainItem = {
-        //
-        invoiceMainItemCode: 0,
-        originalIndex: this.mainItemsRecords.length + 1,
-        //
-        serviceNumberCode: mainItem.serviceNumberCode,
-        unitOfMeasurementCode: mainItem.unitOfMeasurementCode,
-        currencyCode: mainItem.currencyCode,
-        description: mainItem.description,
-
-        formulaCode: this.selectedFormula,
-        quantity: this.resultAfterTest,
-        // quantity: item.quantity,
-        amountPerUnit: mainItem.amountPerUnit,
-        amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
-        total: (this.resultAfterTest) * (mainItem.amountPerUnit ?? 0),
-        profitMargin: mainItem.profitMargin,
-        totalWithProfit: mainItem.totalWithProfit,
-        doNotPrint: mainItem.doNotPrint,
-        Type: '',
-        isPersisted: false,
-        // subItems: []
-        subItems: mainItem.subItems
-      }
-      console.log(newRecord);
-      if (newRecord.quantity === 0) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: ' Quantity is required',
-          life: 3000
-        });
-      }
-      else {
-        console.log(newRecord);
-        //................
-        const bodyRequest: any = {
-          quantity: newRecord.quantity,
-          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
-          //newRecord.amountPerUnit,
-        };
-        if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
-          bodyRequest.profitMargin = newRecord.profitMargin;
-        }
-        this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
-          next: (res) => {
-            console.log('mainitem with total:', res);
-           // newRecord.total = res.total;
-            newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
-            //res.amountPerUnitWithProfit;
-            // if (mainItem.amountPerUnitWithProfit !== undefined) {
-            //   console.log(mainItem.amountPerUnitWithProfit);
-            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
-            // }
-            newRecord.totalWithProfit = res.total;
-            //res.totalWithProfit;
-            console.log(' Record:', newRecord);
-            const filteredRecord = Object.fromEntries(
-              Object.entries(newRecord).filter(([_, value]) => {
-                return value !== '' && value !== 0 && value !== undefined && value !== null;
-              })
-            ) as MainItem;
-            console.log(filteredRecord);
-            this.addMainItem(filteredRecord);
-
-            this.mainItemsRecords = [...this.mainItemsRecords];
-            this.originalMainItemsRecords = [...this.mainItemsRecords];
-
-            this.savedInMemory = true;
-            this.updateTotalValueAfterAction();
-            console.log(this.mainItemsRecords);
-            this.resetNewMainItem();
-            this.selectedServiceNumberRecordForExcel = undefined;
-            this.selectedFormula = '';
-            this.selectedFormulaRecord = undefined;
-            this.resultAfterTest = undefined;
-
-            const index = this.parsedData.findIndex(item => item.invoiceMainItemCode === mainItem.invoiceMainItemCode);
-            if (index !== -1) {
-              this.parsedData.splice(index, 1);
-            }
-          }, error: (err) => {
-            console.log(err);
-          },
-          complete: () => {
-          }
-        });
-        //................
-      }
-    }
-    if (this.selectedServiceNumberRecordForExcel && !this.selectedFormulaRecord && !this.resultAfterTest) {
-      const newRecord: MainItem = {
-        //
-        invoiceMainItemCode: 0,
-        originalIndex: this.mainItemsRecords.length + 1,
-        //
-        serviceNumberCode: mainItem.serviceNumberCode,
-        unitOfMeasurementCode: this.selectedServiceNumberRecordForExcel.unitOfMeasurementCode,
-        currencyCode: mainItem.currencyCode,
-        description: this.selectedServiceNumberRecordForExcel.description,
-
-        formulaCode: mainItem.formulaCode,
-        quantity: mainItem.quantity,
-        amountPerUnit: mainItem.amountPerUnit,
-        amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
-        total: (mainItem.quantity ?? 0) * (mainItem.amountPerUnit ?? 0),
-        profitMargin: mainItem.profitMargin,
-        totalWithProfit: mainItem.totalWithProfit,
-        doNotPrint: mainItem.doNotPrint,
-        Type: '',
-        isPersisted: false,
-        // subItems: []
-        subItems: mainItem.subItems
-      }
-      console.log(newRecord);
-      if (newRecord.quantity === 0) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: ' Quantity is required',
-          life: 3000
-        });
-      }
-      else {
-        console.log(newRecord);
-        //................
-        const bodyRequest: any = {
-          quantity: newRecord.quantity,
-          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
-          //newRecord.amountPerUnit,
-        };
-        if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
-          bodyRequest.profitMargin = newRecord.profitMargin;
-        }
-        this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
-          next: (res) => {
-            console.log('mainitem with total:', res);
-           // newRecord.total = res.total;
-            newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
-            // res.amountPerUnitWithProfit;
-            // if (mainItem.amountPerUnitWithProfit !== undefined) {
-            //   console.log(mainItem.amountPerUnitWithProfit);
-            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
-            // }
-            newRecord.totalWithProfit = res.total;
-            //res.totalWithProfit;
-            console.log(' Record:', newRecord);
-            const filteredRecord = Object.fromEntries(
-              Object.entries(newRecord).filter(([_, value]) => {
-                return value !== '' && value !== 0 && value !== undefined && value !== null;
-              })
-            ) as MainItem;
-            console.log(filteredRecord);
-            this.addMainItem(filteredRecord);
-
-            this.mainItemsRecords = [...this.mainItemsRecords];
-
-            this.originalMainItemsRecords = [...this.mainItemsRecords];
-
-            this.savedInMemory = true;
-            this.updateTotalValueAfterAction();
-            console.log(this.mainItemsRecords);
-            this.resetNewMainItem();
-            this.selectedServiceNumberRecordForExcel = undefined;
-            this.selectedFormula = '';
-            this.selectedFormulaRecord = undefined;
-            this.resultAfterTest = undefined;
-
-            const index = this.parsedData.findIndex(item => item.invoiceMainItemCode === mainItem.invoiceMainItemCode);
-            if (index !== -1) {
-              this.parsedData.splice(index, 1);
-            }
-          }, error: (err) => {
-            console.log(err);
-          },
-          complete: () => {
-          }
-        });
-        //................
-      }
-    }
-    if (!this.selectedServiceNumberRecordForExcel && !this.selectedFormulaRecord && !this.resultAfterTest) {
-      const newRecord: MainItem = {
-        //
-        invoiceMainItemCode: 0,
-        originalIndex: this.mainItemsRecords.length + 1,
-        //
-        serviceNumberCode: mainItem.serviceNumberCode,
-        unitOfMeasurementCode: mainItem.unitOfMeasurementCode,
-        currencyCode: mainItem.currencyCode,
-        description: mainItem.description,
-
-        formulaCode: mainItem.formulaCode,
-        quantity: mainItem.quantity,
-        amountPerUnit: mainItem.amountPerUnit,
-        amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
-        total: (mainItem.quantity ?? 0) * (mainItem.amountPerUnit ?? 0),
-        profitMargin: mainItem.profitMargin,
-        totalWithProfit: mainItem.totalWithProfit,
-        doNotPrint: mainItem.doNotPrint,
-        Type: '',
-        isPersisted: false,
-        //subItems: []
-        subItems: mainItem.subItems
-      }
-      console.log(newRecord);
-      if (newRecord.quantity === 0) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: ' Quantity is required',
-          life: 3000
-        });
-      }
-      else {
-        console.log(newRecord);
-        //................
-        const bodyRequest: any = {
-          quantity: newRecord.quantity,
-          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
-          //newRecord.amountPerUnit,
-        };
-        if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
-          bodyRequest.profitMargin = newRecord.profitMargin;
-        }
-        this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
-          next: (res) => {
-            console.log('mainitem with total:', res);
-            //newRecord.total = res.total;
-            newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
-            //  res.amountPerUnitWithProfit;
-            // if (mainItem.amountPerUnitWithProfit !== undefined) {
-            //   console.log(mainItem.amountPerUnitWithProfit);
-            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
-            // }
-            newRecord.totalWithProfit = res.total;
-            //res.totalWithProfit;
-            console.log(' Record:', newRecord);
-            const filteredRecord = Object.fromEntries(
-              Object.entries(newRecord).filter(([_, value]) => {
-                return value !== '' && value !== 0 && value !== undefined && value !== null;
-              })
-            ) as MainItem;
-            console.log(filteredRecord);
-            this.addMainItem(filteredRecord);
-
-            this.mainItemsRecords = [...this.mainItemsRecords];
-
-            this.originalMainItemsRecords = [...this.mainItemsRecords];
-
-            this.savedInMemory = true;
-            this.updateTotalValueAfterAction();
-            console.log(this.mainItemsRecords);
-            this.resetNewMainItem();
-            this.selectedServiceNumberRecordForExcel = undefined;
-            this.selectedFormula = '';
-            this.selectedFormulaRecord = undefined;
-            this.resultAfterTest = undefined;
-
-            const index = this.parsedData.findIndex(item => item.invoiceMainItemCode === mainItem.invoiceMainItemCode);
-            if (index !== -1) {
-              this.parsedData.splice(index, 1);
-            }
-          }, error: (err) => {
-            console.log(err);
-          },
-          complete: () => {
-          }
-        });
-        //................
-      }
-    }
-  }
-  cancelFromExcel(item: any): void {
-    this.parsedData = this.parsedData.filter(i => i !== item);
-  }
-
-  // Excel Import:
-  parsedData: MainItem[] = []; // Parsed data from the Excel file
-  displayedColumns: string[] = []; // Column headers from the Excel file
-
-
-  // worked function without subitems:
-  // onFileSelect(event: any, fileUploader: any) {
-  //   console.log('Records before :', this.parsedData);
-
-  //   const file = event.files[0];
-  //   const reader = new FileReader();
-
-  //   reader.onload = (e: any) => {
-  //     const binaryData = e.target.result;
-  //     const workbook = XLSX.read(binaryData, { type: 'binary' });
-
-  //     const sheetName = workbook.SheetNames[0];
-  //     const sheet = workbook.Sheets[sheetName];
-
-  //     const jsonData: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-  //     if (jsonData.length > 0) {
-  //       this.displayedColumns = jsonData[0].filter((col: any) => typeof col === 'string' && col.trim() !== '') as string[];
-  //       this.parsedData = jsonData
-  //         .slice(1) // Skip the header row
-  //         .map((row: any[]) => {
-  //           const rowData: any = {};
-  //           this.displayedColumns.forEach((col, index) => {
-  //             rowData[col] = row[index] !== undefined ? row[index] : '';
-  //           });
-  //           return rowData;
-  //         })
-  //         .filter((rowData: any) => rowData.Type === 'Main Item'); // Filter only "Main Item" rows
-
-  //       console.log('Filtered Records :', this.parsedData);
-  //       this.messageService.add({
-  //         severity: 'success',
-  //         summary: 'Success',
-  //         detail: 'Main Item records copied from the Excel sheet successfully!',
-  //         life: 4000,
-  //       });
-  //     } else {
-  //       this.displayedColumns = [];
-  //       this.parsedData = [];
-  //     }
-
-  //     fileUploader.clear();
-  //   };
-
-  //   reader.readAsBinaryString(file);
-  // }
-
-  // new with subitems:
- 
-  onFileSelect(event: any, fileUploader: any) {
-    console.log('Records before :', this.parsedData);
-
-    const file = event.files[0];
-    const reader = new FileReader();
-
-    reader.onload = (e: any) => {
-      const binaryData = e.target.result;
-      const workbook = XLSX.read(binaryData, { type: 'binary' });
-
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
-
-      const jsonData: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-      if (jsonData.length > 0) {
-        this.displayedColumns = jsonData[0].filter((col: any) => typeof col === 'string' && col.trim() !== '') as string[];
-
-        const rawParsedData = jsonData.slice(1).map((row: any[]) => {
-          const rowData: any = {};
-          this.displayedColumns.forEach((col, index) => {
-            rowData[col] = row[index] !== undefined ? row[index] : '';
-          });
-          return rowData;
-        });
-
-        // Parse Main Items and their related Sub Items
-        this.parsedData = [];
-        let currentMainItem: any = null;
-
-        rawParsedData.forEach((rowData: any) => {
-          if (rowData.Type === 'Main Item') {
-            // Start a new Main Item
-            currentMainItem = { ...rowData, subItems: [] };
-            this.parsedData.push(currentMainItem);
-          } else if (rowData.Type === 'Sub Item' && currentMainItem) {
-            // Add Sub Item to the current Main Item
-            currentMainItem.subItems.push(rowData);
-          }
-        });
-
-        console.log('Hierarchical Parsed Data :', this.parsedData);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Main Item and related Sub Item records processed successfully!',
-          life: 4000,
-        });
-      } else {
-        this.displayedColumns = [];
-        this.parsedData = [];
-      }
-
-      fileUploader.clear();
-    };
-
-    reader.readAsBinaryString(file);
-  }
-
+// Profit margin calculations:
   updateProfitMargin(value: number) {
     console.log(value);
     if (value !== null && value < 0) {
@@ -1238,6 +291,852 @@ export class InvoiceComponent {
     this.calculateTotalValue();
     console.log('Updated Total Value:', this.totalValue);
   }
+  //search:
+  originalMainItemsRecords: MainItem[] = []; 
+  filterRecords(): void {
+    if (this.searchKey && this.searchKey.trim() !== ' ') {
+      this.mainItemsRecords = this.originalMainItemsRecords.filter((record: any) =>
+        record.description.toLowerCase().includes(this.searchKey.toLowerCase())
+      );
+    } else {
+      console.log("else");
+      this.mainItemsRecords = [...this.originalMainItemsRecords];
+      console.log(this.mainItemsRecords);
+    }
+  }
+  // Imports ()
+  showImportsDialog() {
+    this.displayImportsDialog = true;
+  }
+  showExcelDialog() {
+    this.displayExcelDialog = true;
+  }
+  showModelSpecsDialog() {
+    this.displayModelSpecsDialog = true;
+    this._ApiService.get<ModelEntity[]>(`modelspecs`).subscribe({
+      next: (res) => {
+        this.models = res.sort((a, b) => a.modelSpecCode - b.modelSpecCode);
+        console.log(this.models);
+      }
+      , error: (err) => {
+        console.log(err);
+      },
+      complete: () => {
+      }
+    });
+  }
+  showModelSpecsDetailsDialog(model: ModelEntity) {
+    this.displayModelSpecsDetailsDialog = true;
+    const detailObservables = model.modelSpecDetailsCode.map(code =>
+      this._ApiService.getID<ModelSpecDetails>('modelspecdetails', code)
+    );
+    forkJoin(detailObservables).subscribe(records => {
+      this.modelSpecsDetails = records.sort((a, b) => b.modelSpecDetailsCode - a.modelSpecDetailsCode);
+    });
+  }
+  saveSelectionModelSpecsDetails() {
+    console.log('Selected items:', this.selectedModelSpecsDetails);
+    this.displayModelSpecsDetailsDialog = false;
+    this.displayModelSpecsDialog = false;
+    this.displayImportsDialog = false;
+  }
+
+  // for selected models specs details:
+  saveModelSpecsDetails(mainItem: ModelSpecDetails) {
+    console.log(mainItem);
+    if (this.selectedServiceNumberRecordForModels && this.selectedFormulaRecord && this.resultAfterTest) {
+      const newRecord: MainItem = {
+        //
+        invoiceMainItemCode: 0,
+        originalIndex: this.mainItemsRecords.length + 1,
+        //
+        serviceNumberCode: mainItem.serviceNumberCode,
+        unitOfMeasurementCode: this.selectedServiceNumberRecordForModels.unitOfMeasurementCode,
+        currencyCode: mainItem.currencyCode,
+        description: this.selectedServiceNumberRecordForModels.description,
+
+        formulaCode: this.selectedFormula,
+        quantity: this.resultAfterTest,
+        // quantity: item.quantity,
+        amountPerUnit: mainItem.grossPrice,
+        amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
+        total: (this.resultAfterTest) * (mainItem.grossPrice),
+        //mainItem.netValue,
+        profitMargin: mainItem.profitMargin,
+        totalWithProfit: mainItem.totalWithProfit,
+        // doNotPrint: mainItem.doNotPrint,
+        Type: '',
+        isPersisted: false,
+        subItems: []
+      }
+      console.log(newRecord);
+      if (newRecord.quantity === 0) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: ' Quantity is required',
+          life: 3000
+        });
+      }
+      else {
+        console.log(newRecord);
+        //................
+        const bodyRequest: any = {
+          quantity: newRecord.quantity,
+          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : newRecord.amountPerUnit
+          //newRecord.amountPerUnit,
+        };
+        if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
+          bodyRequest.profitMargin = newRecord.profitMargin;
+        }
+        this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
+          next: (res) => {
+            console.log('mainitem with total:', res);
+            //newRecord.total = res.total;
+            newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit
+            // res.amountPerUnitWithProfit;
+            // if (mainItem.amountPerUnitWithProfit !== undefined) {
+            //   console.log(mainItem.amountPerUnitWithProfit);
+            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
+            // }
+            newRecord.totalWithProfit = res.total;
+            //res.totalWithProfit;
+            console.log(' Record:', newRecord);
+            const filteredRecord = Object.fromEntries(
+              Object.entries(newRecord).filter(([_, value]) => {
+                return value !== '' && value !== 0 && value !== undefined && value !== null;
+              })
+            ) as MainItem;
+            console.log(filteredRecord);
+            this.addMainItem(filteredRecord);
+
+            this.mainItemsRecords = [...this.mainItemsRecords];
+
+            this.originalMainItemsRecords = [...this.mainItemsRecords];
+
+            this.savedInMemory = true;
+            this.updateTotalValueAfterAction();
+            console.log(this.mainItemsRecords);
+            this.resetNewMainItem();
+            this.selectedServiceNumberRecordForModels = undefined;
+            this.selectedFormula = '';
+            this.selectedFormulaRecord = undefined;
+            this.resultAfterTest = undefined;
+
+            const index = this.selectedModelSpecsDetails.findIndex(item => item.modelSpecDetailsCode === mainItem.modelSpecDetailsCode);
+            if (index !== -1) {
+              this.selectedModelSpecsDetails.splice(index, 1);
+            }
+          }, error: (err) => {
+            console.log(err);
+          },
+          complete: () => {
+          }
+        });
+        //................
+      }
+    }
+    if (!this.selectedServiceNumberRecordForModels && this.selectedFormulaRecord && this.resultAfterTest) {
+      const newRecord: MainItem = {
+        //
+        invoiceMainItemCode: 0,
+        originalIndex: this.mainItemsRecords.length + 1,
+        //
+        serviceNumberCode: mainItem.serviceNumberCode,
+        unitOfMeasurementCode: mainItem.unitOfMeasurementCode,
+        currencyCode: mainItem.currencyCode,
+        description: mainItem.shortText,
+
+        formulaCode: this.selectedFormula,
+        quantity: this.resultAfterTest,
+        // quantity: item.quantity,
+        amountPerUnit: mainItem.grossPrice,
+        amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
+        total: (this.resultAfterTest) * (mainItem.grossPrice),
+        profitMargin: mainItem.profitMargin,
+        totalWithProfit: mainItem.totalWithProfit,
+        // doNotPrint: mainItem.doNotPrint,
+        Type: '',
+        isPersisted: false,
+        subItems: []
+      }
+      console.log(newRecord);
+      if (newRecord.quantity === 0) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: ' Quantity is required',
+          life: 3000
+        });
+      }
+      else {
+        console.log(newRecord);
+        //................
+        const bodyRequest: any = {
+          quantity: newRecord.quantity,
+          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : newRecord.amountPerUnit
+          //newRecord.amountPerUnit,
+        };
+        if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
+          bodyRequest.profitMargin = newRecord.profitMargin;
+        }
+        this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
+          next: (res) => {
+            console.log('mainitem with total:', res);
+            //newRecord.total = res.total;
+            newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit
+            // res.amountPerUnitWithProfit;
+            // if (mainItem.amountPerUnitWithProfit !== undefined) {
+            //   console.log(mainItem.amountPerUnitWithProfit);
+            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
+            // }
+            newRecord.totalWithProfit = res.total;
+            //res.totalWithProfit;
+            console.log(' Record:', newRecord);
+            const filteredRecord = Object.fromEntries(
+              Object.entries(newRecord).filter(([_, value]) => {
+                return value !== '' && value !== 0 && value !== undefined && value !== null;
+              })
+            ) as MainItem;
+            console.log(filteredRecord);
+            this.addMainItem(filteredRecord);
+
+            this.mainItemsRecords = [...this.mainItemsRecords];
+
+            this.originalMainItemsRecords = [...this.mainItemsRecords];
+
+            this.savedInMemory = true;
+            this.updateTotalValueAfterAction();
+            console.log(this.mainItemsRecords);
+            this.resetNewMainItem();
+            this.selectedServiceNumberRecordForModels = undefined;
+            this.selectedFormula = '';
+            this.selectedFormulaRecord = undefined;
+            this.resultAfterTest = undefined;
+
+            const index = this.selectedModelSpecsDetails.findIndex(item => item.modelSpecDetailsCode === mainItem.modelSpecDetailsCode);
+            if (index !== -1) {
+              this.selectedModelSpecsDetails.splice(index, 1);
+            }
+          }, error: (err) => {
+            console.log(err);
+          },
+          complete: () => {
+          }
+        });
+        //................
+      }
+    }
+    if (this.selectedServiceNumberRecordForModels && !this.selectedFormulaRecord && !this.resultAfterTest) {
+      const newRecord: MainItem = {
+        //
+        invoiceMainItemCode: 0,
+        originalIndex: this.mainItemsRecords.length + 1,
+        //
+        serviceNumberCode: mainItem.serviceNumberCode,
+        unitOfMeasurementCode: this.selectedServiceNumberRecordForModels.unitOfMeasurementCode,
+        currencyCode: mainItem.currencyCode,
+        description: this.selectedServiceNumberRecordForModels.description,
+
+        formulaCode: mainItem.formulaCode,
+        quantity: mainItem.quantity,
+        amountPerUnit: mainItem.grossPrice,
+        amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
+        total: (mainItem.quantity) * (mainItem.grossPrice),
+        profitMargin: mainItem.profitMargin,
+        totalWithProfit: mainItem.totalWithProfit,
+        // doNotPrint: mainItem.doNotPrint,
+        Type: '',
+        isPersisted: false,
+        subItems: []
+      }
+      console.log(newRecord);
+      if (newRecord.quantity === 0) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: ' Quantity is required',
+          life: 3000
+        });
+      }
+      else {
+        console.log(newRecord);
+        //................
+        const bodyRequest: any = {
+          quantity: newRecord.quantity,
+          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : newRecord.amountPerUnit
+          //newRecord.amountPerUnit,
+        };
+        if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
+          bodyRequest.profitMargin = newRecord.profitMargin;
+        }
+        this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
+          next: (res) => {
+            console.log('mainitem with total:', res);
+            //newRecord.total = res.total;
+            newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit
+            // res.amountPerUnitWithProfit;
+            // if (mainItem.amountPerUnitWithProfit !== undefined) {
+            //   console.log(mainItem.amountPerUnitWithProfit);
+            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
+            // }
+            newRecord.totalWithProfit = res.total;
+            //res.totalWithProfit;
+            console.log(' Record:', newRecord);
+            const filteredRecord = Object.fromEntries(
+              Object.entries(newRecord).filter(([_, value]) => {
+                return value !== '' && value !== 0 && value !== undefined && value !== null;
+              })
+            ) as MainItem;
+            console.log(filteredRecord);
+            this.addMainItem(filteredRecord);
+
+            this.mainItemsRecords = [...this.mainItemsRecords];
+
+            this.originalMainItemsRecords = [...this.mainItemsRecords];
+
+            this.savedInMemory = true;
+            this.updateTotalValueAfterAction();
+            console.log(this.mainItemsRecords);
+            this.resetNewMainItem();
+            this.selectedServiceNumberRecordForModels = undefined;
+            this.selectedFormula = '';
+            this.selectedFormulaRecord = undefined;
+            this.resultAfterTest = undefined;
+
+            const index = this.selectedModelSpecsDetails.findIndex(item => item.modelSpecDetailsCode === mainItem.modelSpecDetailsCode);
+            if (index !== -1) {
+              this.selectedModelSpecsDetails.splice(index, 1);
+            }
+          }, error: (err) => {
+            console.log(err);
+          },
+          complete: () => {
+          }
+        });
+        //................
+      }
+    }
+    if (!this.selectedServiceNumberRecordForModels && !this.selectedFormulaRecord && !this.resultAfterTest) {
+      const newRecord: MainItem = {
+        //
+        invoiceMainItemCode: 0,
+        originalIndex: this.mainItemsRecords.length + 1,
+        //
+        serviceNumberCode: mainItem.serviceNumberCode,
+        unitOfMeasurementCode: mainItem.unitOfMeasurementCode,
+        currencyCode: mainItem.currencyCode,
+        description: mainItem.shortText,
+
+        formulaCode: mainItem.formulaCode,
+        quantity: mainItem.quantity,
+        amountPerUnit: mainItem.grossPrice,
+        amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
+        total: (mainItem.quantity) * (mainItem.grossPrice),
+        profitMargin: mainItem.profitMargin,
+        totalWithProfit: mainItem.totalWithProfit,
+        // doNotPrint: mainItem.doNotPrint,
+        Type: '',
+        isPersisted: false,
+        subItems: []
+      }
+      console.log(newRecord);
+      if (newRecord.quantity === 0) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: ' Quantity is required',
+          life: 3000
+        });
+      }
+      else {
+        console.log(newRecord);
+        //................
+        const bodyRequest: any = {
+          quantity: newRecord.quantity,
+          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : newRecord.amountPerUnit
+          //newRecord.amountPerUnit,
+        };
+        if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
+          bodyRequest.profitMargin = newRecord.profitMargin;
+        }
+        this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
+          next: (res) => {
+            console.log('mainitem with total:', res);
+            // newRecord.total = res.total;
+            newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit
+            //res.amountPerUnitWithProfit;
+            // if (mainItem.amountPerUnitWithProfit !== undefined) {
+            //   console.log(mainItem.amountPerUnitWithProfit);
+            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
+            // }
+            newRecord.totalWithProfit = res.total;
+            //res.totalWithProfit;
+            console.log(' Record:', newRecord);
+            const filteredRecord = Object.fromEntries(
+              Object.entries(newRecord).filter(([_, value]) => {
+                return value !== '' && value !== 0 && value !== undefined && value !== null;
+              })
+            ) as MainItem;
+            console.log(filteredRecord);
+            this.addMainItem(filteredRecord);
+
+            this.mainItemsRecords = [...this.mainItemsRecords];
+
+            this.originalMainItemsRecords = [...this.mainItemsRecords];
+
+            this.savedInMemory = true;
+            this.updateTotalValueAfterAction();
+            console.log(this.mainItemsRecords);
+            this.resetNewMainItem();
+            this.selectedServiceNumberRecordForModels = undefined;
+            this.selectedFormula = '';
+            this.selectedFormulaRecord = undefined;
+            this.resultAfterTest = undefined;
+
+            const index = this.selectedModelSpecsDetails.findIndex(item => item.modelSpecDetailsCode === mainItem.modelSpecDetailsCode);
+            if (index !== -1) {
+              this.selectedModelSpecsDetails.splice(index, 1);
+            }
+          }, error: (err) => {
+            console.log(err);
+          },
+          complete: () => {
+          }
+        });
+        //................
+      }
+    }
+  }
+
+  cancelModelSpecsDetails(item: any): void {
+    this.selectedModelSpecsDetails = this.selectedModelSpecsDetails.filter(i => i !== item);
+  }
+  // Excel Import:
+  parsedData: MainItem[] = []; // Parsed data from the Excel file
+  displayedColumns: string[] = []; // Column headers from the Excel file
+
+  onFileSelect(event: any, fileUploader: any) {
+    console.log('Records before :', this.parsedData);
+    const file = event.files[0];
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      const binaryData = e.target.result;
+      const workbook = XLSX.read(binaryData, { type: 'binary' });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const jsonData: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+      if (jsonData.length > 0) {
+        this.displayedColumns = jsonData[0].filter((col: any) => typeof col === 'string' && col.trim() !== '') as string[];
+        const rawParsedData = jsonData.slice(1).map((row: any[]) => {
+          const rowData: any = {};
+          this.displayedColumns.forEach((col, index) => {
+            rowData[col] = row[index] !== undefined ? row[index] : '';
+          });
+          return rowData;
+        });
+        // Parse Main Items and their related Sub Items
+        this.parsedData = [];
+        let currentMainItem: any = null;
+        rawParsedData.forEach((rowData: any) => {
+          if (rowData.Type === 'Main Item') {
+            // Start a new Main Item
+            currentMainItem = { ...rowData, subItems: [] };
+            this.parsedData.push(currentMainItem);
+          } else if (rowData.Type === 'Sub Item' && currentMainItem) {
+            // Add Sub Item to the current Main Item
+            currentMainItem.subItems.push(rowData);
+          }
+        });
+        console.log('Hierarchical Parsed Data :', this.parsedData);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Main Item and related Sub Item records processed successfully!',
+          life: 4000,
+        });
+      } else {
+        this.displayedColumns = [];
+        this.parsedData = [];
+      }
+      fileUploader.clear();
+    };
+    reader.readAsBinaryString(file);
+  }
+  // for selected from excel sheet:
+  saveMainItemFromExcel(mainItem: MainItem) {
+    console.log(mainItem);
+    if (this.selectedServiceNumberRecordForExcel && this.selectedFormulaRecord && this.resultAfterTest) {
+      const newRecord: MainItem = {
+        //
+        invoiceMainItemCode: 0,
+        originalIndex: this.mainItemsRecords.length + 1,
+        //
+        serviceNumberCode: mainItem.serviceNumberCode,
+        unitOfMeasurementCode: this.selectedServiceNumberRecordForExcel.unitOfMeasurementCode,
+        currencyCode: mainItem.currencyCode,
+        description: this.selectedServiceNumberRecordForExcel.description,
+
+        formulaCode: this.selectedFormula,
+        quantity: this.resultAfterTest,
+        // quantity: item.quantity,
+        amountPerUnit: mainItem.amountPerUnit,
+        amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
+        total: (this.resultAfterTest) * (mainItem.amountPerUnit ?? 0),
+        //mainItem.total,
+        profitMargin: mainItem.profitMargin,
+        totalWithProfit: mainItem.totalWithProfit,
+        doNotPrint: mainItem.doNotPrint,
+        Type: '',
+        isPersisted: false,
+        // subItems: []
+        subItems: mainItem.subItems
+      }
+      console.log(newRecord);
+      if (newRecord.quantity === 0) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: ' Quantity is required',
+          life: 3000
+        });
+      }
+      else {
+        console.log(newRecord);
+        //................
+        const bodyRequest: any = {
+          quantity: newRecord.quantity,
+          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : newRecord.amountPerUnit
+          //newRecord.amountPerUnit,
+        };
+        if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
+          bodyRequest.profitMargin = newRecord.profitMargin;
+        }
+        this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
+          next: (res) => {
+            console.log('mainitem with total:', res);
+            //newRecord.total = res.total;
+            newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit
+            // res.amountPerUnitWithProfit;
+            // if (mainItem.amountPerUnitWithProfit !== undefined) {
+            //   console.log(mainItem.amountPerUnitWithProfit);
+            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
+            // }
+            newRecord.totalWithProfit = res.total;
+            //res.totalWithProfit;
+            console.log(' Record:', newRecord);
+            const filteredRecord = Object.fromEntries(
+              Object.entries(newRecord).filter(([_, value]) => {
+                return value !== '' && value !== 0 && value !== undefined && value !== null;
+              })
+            ) as MainItem;
+            console.log(filteredRecord);
+            this.addMainItem(filteredRecord);
+
+            this.mainItemsRecords = [...this.mainItemsRecords];
+            this.originalMainItemsRecords = [...this.mainItemsRecords];
+
+            this.savedInMemory = true;
+            this.updateTotalValueAfterAction();
+            console.log(this.mainItemsRecords);
+            this.resetNewMainItem();
+            this.selectedServiceNumberRecordForExcel = undefined;
+            this.selectedFormula = '';
+            this.selectedFormulaRecord = undefined;
+            this.resultAfterTest = undefined;
+
+            const index = this.parsedData.findIndex(item => item.invoiceMainItemCode === mainItem.invoiceMainItemCode);
+            if (index !== -1) {
+              this.parsedData.splice(index, 1);
+            }
+          }, error: (err) => {
+            console.log(err);
+          },
+          complete: () => {
+          }
+        });
+        //................
+      }
+    }
+
+    if (!this.selectedServiceNumberRecordForExcel && this.selectedFormulaRecord && this.resultAfterTest) {
+      const newRecord: MainItem = {
+        //
+        invoiceMainItemCode: 0,
+        originalIndex: this.mainItemsRecords.length + 1,
+        //
+        serviceNumberCode: mainItem.serviceNumberCode,
+        unitOfMeasurementCode: mainItem.unitOfMeasurementCode,
+        currencyCode: mainItem.currencyCode,
+        description: mainItem.description,
+
+        formulaCode: this.selectedFormula,
+        quantity: this.resultAfterTest,
+        // quantity: item.quantity,
+        amountPerUnit: mainItem.amountPerUnit,
+        amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
+        total: (this.resultAfterTest) * (mainItem.amountPerUnit ?? 0),
+        profitMargin: mainItem.profitMargin,
+        totalWithProfit: mainItem.totalWithProfit,
+        doNotPrint: mainItem.doNotPrint,
+        Type: '',
+        isPersisted: false,
+        // subItems: []
+        subItems: mainItem.subItems
+      }
+      console.log(newRecord);
+      if (newRecord.quantity === 0) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: ' Quantity is required',
+          life: 3000
+        });
+      }
+      else {
+        console.log(newRecord);
+        //................
+        const bodyRequest: any = {
+          quantity: newRecord.quantity,
+          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : newRecord.amountPerUnit
+          //newRecord.amountPerUnit,
+        };
+        if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
+          bodyRequest.profitMargin = newRecord.profitMargin;
+        }
+        this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
+          next: (res) => {
+            console.log('mainitem with total:', res);
+            // newRecord.total = res.total;
+            newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit
+            //res.amountPerUnitWithProfit;
+            // if (mainItem.amountPerUnitWithProfit !== undefined) {
+            //   console.log(mainItem.amountPerUnitWithProfit);
+            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
+            // }
+            newRecord.totalWithProfit = res.total;
+            //res.totalWithProfit;
+            console.log(' Record:', newRecord);
+            const filteredRecord = Object.fromEntries(
+              Object.entries(newRecord).filter(([_, value]) => {
+                return value !== '' && value !== 0 && value !== undefined && value !== null;
+              })
+            ) as MainItem;
+            console.log(filteredRecord);
+            this.addMainItem(filteredRecord);
+
+            this.mainItemsRecords = [...this.mainItemsRecords];
+            this.originalMainItemsRecords = [...this.mainItemsRecords];
+
+            this.savedInMemory = true;
+            this.updateTotalValueAfterAction();
+            console.log(this.mainItemsRecords);
+            this.resetNewMainItem();
+            this.selectedServiceNumberRecordForExcel = undefined;
+            this.selectedFormula = '';
+            this.selectedFormulaRecord = undefined;
+            this.resultAfterTest = undefined;
+
+            const index = this.parsedData.findIndex(item => item.invoiceMainItemCode === mainItem.invoiceMainItemCode);
+            if (index !== -1) {
+              this.parsedData.splice(index, 1);
+            }
+          }, error: (err) => {
+            console.log(err);
+          },
+          complete: () => {
+          }
+        });
+        //................
+      }
+    }
+    if (this.selectedServiceNumberRecordForExcel && !this.selectedFormulaRecord && !this.resultAfterTest) {
+      const newRecord: MainItem = {
+        //
+        invoiceMainItemCode: 0,
+        originalIndex: this.mainItemsRecords.length + 1,
+        //
+        serviceNumberCode: mainItem.serviceNumberCode,
+        unitOfMeasurementCode: this.selectedServiceNumberRecordForExcel.unitOfMeasurementCode,
+        currencyCode: mainItem.currencyCode,
+        description: this.selectedServiceNumberRecordForExcel.description,
+
+        formulaCode: mainItem.formulaCode,
+        quantity: mainItem.quantity,
+        amountPerUnit: mainItem.amountPerUnit,
+        amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
+        total: (mainItem.quantity ?? 0) * (mainItem.amountPerUnit ?? 0),
+        profitMargin: mainItem.profitMargin,
+        totalWithProfit: mainItem.totalWithProfit,
+        doNotPrint: mainItem.doNotPrint,
+        Type: '',
+        isPersisted: false,
+        // subItems: []
+        subItems: mainItem.subItems
+      }
+      console.log(newRecord);
+      if (newRecord.quantity === 0) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: ' Quantity is required',
+          life: 3000
+        });
+      }
+      else {
+        console.log(newRecord);
+        //................
+        const bodyRequest: any = {
+          quantity: newRecord.quantity,
+          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : newRecord.amountPerUnit
+          //newRecord.amountPerUnit,
+        };
+        if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
+          bodyRequest.profitMargin = newRecord.profitMargin;
+        }
+        this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
+          next: (res) => {
+            console.log('mainitem with total:', res);
+            // newRecord.total = res.total;
+            newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit
+            // res.amountPerUnitWithProfit;
+            // if (mainItem.amountPerUnitWithProfit !== undefined) {
+            //   console.log(mainItem.amountPerUnitWithProfit);
+            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
+            // }
+            newRecord.totalWithProfit = res.total;
+            //res.totalWithProfit;
+            console.log(' Record:', newRecord);
+            const filteredRecord = Object.fromEntries(
+              Object.entries(newRecord).filter(([_, value]) => {
+                return value !== '' && value !== 0 && value !== undefined && value !== null;
+              })
+            ) as MainItem;
+            console.log(filteredRecord);
+            this.addMainItem(filteredRecord);
+
+            this.mainItemsRecords = [...this.mainItemsRecords];
+
+            this.originalMainItemsRecords = [...this.mainItemsRecords];
+
+            this.savedInMemory = true;
+            this.updateTotalValueAfterAction();
+            console.log(this.mainItemsRecords);
+            this.resetNewMainItem();
+            this.selectedServiceNumberRecordForExcel = undefined;
+            this.selectedFormula = '';
+            this.selectedFormulaRecord = undefined;
+            this.resultAfterTest = undefined;
+
+            const index = this.parsedData.findIndex(item => item.invoiceMainItemCode === mainItem.invoiceMainItemCode);
+            if (index !== -1) {
+              this.parsedData.splice(index, 1);
+            }
+          }, error: (err) => {
+            console.log(err);
+          },
+          complete: () => {
+          }
+        });
+        //................
+      }
+    }
+    if (!this.selectedServiceNumberRecordForExcel && !this.selectedFormulaRecord && !this.resultAfterTest) {
+      const newRecord: MainItem = {
+        //
+        invoiceMainItemCode: 0,
+        originalIndex: this.mainItemsRecords.length + 1,
+        //
+        serviceNumberCode: mainItem.serviceNumberCode,
+        unitOfMeasurementCode: mainItem.unitOfMeasurementCode,
+        currencyCode: mainItem.currencyCode,
+        description: mainItem.description,
+
+        formulaCode: mainItem.formulaCode,
+        quantity: mainItem.quantity,
+        amountPerUnit: mainItem.amountPerUnit,
+        amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
+        total: (mainItem.quantity ?? 0) * (mainItem.amountPerUnit ?? 0),
+        profitMargin: mainItem.profitMargin,
+        totalWithProfit: mainItem.totalWithProfit,
+        doNotPrint: mainItem.doNotPrint,
+        Type: '',
+        isPersisted: false,
+        //subItems: []
+        subItems: mainItem.subItems
+      }
+      console.log(newRecord);
+      if (newRecord.quantity === 0) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: ' Quantity is required',
+          life: 3000
+        });
+      }
+      else {
+        console.log(newRecord);
+        //................
+        const bodyRequest: any = {
+          quantity: newRecord.quantity,
+          amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : newRecord.amountPerUnit
+          //newRecord.amountPerUnit,
+        };
+        if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
+          bodyRequest.profitMargin = newRecord.profitMargin;
+        }
+        this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
+          next: (res) => {
+            console.log('mainitem with total:', res);
+            //newRecord.total = res.total;
+            newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit
+            //  res.amountPerUnitWithProfit;
+            // if (mainItem.amountPerUnitWithProfit !== undefined) {
+            //   console.log(mainItem.amountPerUnitWithProfit);
+            //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
+            // }
+            newRecord.totalWithProfit = res.total;
+            //res.totalWithProfit;
+            console.log(' Record:', newRecord);
+            const filteredRecord = Object.fromEntries(
+              Object.entries(newRecord).filter(([_, value]) => {
+                return value !== '' && value !== 0 && value !== undefined && value !== null;
+              })
+            ) as MainItem;
+            console.log(filteredRecord);
+            this.addMainItem(filteredRecord);
+
+            this.mainItemsRecords = [...this.mainItemsRecords];
+
+            this.originalMainItemsRecords = [...this.mainItemsRecords];
+
+            this.savedInMemory = true;
+            this.updateTotalValueAfterAction();
+            console.log(this.mainItemsRecords);
+            this.resetNewMainItem();
+            this.selectedServiceNumberRecordForExcel = undefined;
+            this.selectedFormula = '';
+            this.selectedFormulaRecord = undefined;
+            this.resultAfterTest = undefined;
+
+            const index = this.parsedData.findIndex(item => item.invoiceMainItemCode === mainItem.invoiceMainItemCode);
+            if (index !== -1) {
+              this.parsedData.splice(index, 1);
+            }
+          }, error: (err) => {
+            console.log(err);
+          },
+          complete: () => {
+          }
+        });
+        //................
+      }
+    }
+  }
+
+  cancelFromExcel(item: any): void {
+    this.parsedData = this.parsedData.filter(i => i !== item);
+  }
 
   // For Add new  Main Item
   newMainItem: MainItem = {
@@ -1258,12 +1157,6 @@ export class InvoiceComponent {
     isPersisted: false,
     // originalIndex: 0
   };
-
-  // onAmountWithProfitChange(event: Event): void {
-  //   const inputValue = (event.target as HTMLInputElement).value;
-  //   console.log(inputValue);
-  //   this.newMainItem.amountPerUnitWithProfit = inputValue ? +inputValue : undefined;
-  // }
 
   addMainItemInMemory() {
     if (this.newMainItem.description == '' && this.newMainItem.quantity === 0 && this.newMainItem.amountPerUnit === 0) {
@@ -1291,7 +1184,13 @@ export class InvoiceComponent {
         //this.newMainItem.total,
         profitMargin: this.newMainItem.profitMargin,
         amountPerUnitWithProfit: this.newMainItem.amountPerUnitWithProfit,
-        totalWithProfit: this.newMainItem.totalWithProfit,
+        //totalWithProfit: this.newMainItem.totalWithProfit,
+        
+        totalWithProfit: (this.newMainItem.amountPerUnitWithProfit != null && this.newMainItem.amountPerUnitWithProfit !== 0) ?
+          (this.newMainItem.quantity ?? 0) * this.newMainItem.amountPerUnitWithProfit
+          : (this.newMainItem.quantity ?? 0) * (this.newMainItem.amountPerUnit ?? 0) *
+          ((this.newMainItem.profitMargin ?? 0) / 100) +(this.newMainItem.quantity ?? 0) * (this.newMainItem.amountPerUnit ?? 0),
+          
         temporaryDeletion: 'temporary',
         referenceId: this.documentNumber,
 
@@ -1304,7 +1203,7 @@ export class InvoiceComponent {
 
       const bodyRequest: any = {
         quantity: newRecord.quantity,
-        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : newRecord.amountPerUnit
         //newRecord.amountPerUnit,
       };
       if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
@@ -1321,7 +1220,7 @@ export class InvoiceComponent {
           //   console.log(this.newMainItem.amountPerUnitWithProfit);
           //   newRecord.amountPerUnitWithProfit = this.newMainItem.amountPerUnitWithProfit;
           // }
-          newRecord.totalWithProfit = res.total;
+         // newRecord.totalWithProfit = res.total;
           //res.totalWithProfit;
           console.log(' Record:', newRecord);
 
@@ -1380,7 +1279,10 @@ export class InvoiceComponent {
         amountPerUnitWithProfit: this.newMainItem.amountPerUnitWithProfit,
         total: (this.resultAfterTest) * (this.newMainItem.amountPerUnit ?? 0),
         profitMargin: this.newMainItem.profitMargin,
-        totalWithProfit: this.newMainItem.totalWithProfit,
+       // totalWithProfit: this.newMainItem.totalWithProfit,
+       totalWithProfit:  (this.newMainItem.amountPerUnitWithProfit != null && this.newMainItem.amountPerUnitWithProfit !== 0) ?
+       this.resultAfterTest * this.newMainItem.amountPerUnitWithProfit
+       : this.resultAfterTest * (this.newMainItem.amountPerUnit ?? 0) *((this.newMainItem.profitMargin ?? 0) / 100) + this.resultAfterTest * (this.newMainItem.amountPerUnit ?? 0),
         temporaryDeletion: 'temporary',
         referenceId: this.documentNumber,
         Type: '',
@@ -1401,7 +1303,7 @@ export class InvoiceComponent {
       console.log(newRecord);
       const bodyRequest: any = {
         quantity: newRecord.quantity,
-        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : newRecord.amountPerUnit
         //newRecord.amountPerUnit,
       };
       if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
@@ -1411,13 +1313,13 @@ export class InvoiceComponent {
         next: (res) => {
           console.log('mainitem with total:', res);
           //newRecord.total = res.total;
-          newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+          newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit
           //res.amountPerUnitWithProfit;
           // if (this.newMainItem.amountPerUnitWithProfit !== undefined) {
           //   console.log(this.newMainItem.amountPerUnitWithProfit);
           //   newRecord.amountPerUnitWithProfit = this.newMainItem.amountPerUnitWithProfit;
           // }
-          newRecord.totalWithProfit = res.total;
+          //newRecord.totalWithProfit = res.total;
           //res.totalWithProfit;
           const filteredRecord = Object.fromEntries(
             Object.entries(newRecord).filter(([_, value]) => {
@@ -1470,7 +1372,11 @@ export class InvoiceComponent {
         amountPerUnitWithProfit: this.newMainItem.amountPerUnitWithProfit,
         total: (this.newMainItem.quantity ?? 0) * (this.newMainItem.amountPerUnit ?? 0),
         profitMargin: this.newMainItem.profitMargin,
-        totalWithProfit: this.newMainItem.totalWithProfit,
+       // totalWithProfit: this.newMainItem.totalWithProfit,
+       totalWithProfit: (this.newMainItem.amountPerUnitWithProfit != null && this.newMainItem.amountPerUnitWithProfit !== 0) ?
+          (this.newMainItem.quantity ?? 0) * this.newMainItem.amountPerUnitWithProfit
+          : (this.newMainItem.quantity ?? 0) * (this.newMainItem.amountPerUnit ?? 0) *
+          ((this.newMainItem.profitMargin ?? 0) / 100) +(this.newMainItem.quantity ?? 0) * (this.newMainItem.amountPerUnit ?? 0),
         temporaryDeletion: 'temporary',
         referenceId: this.documentNumber,
         Type: '',
@@ -1491,7 +1397,7 @@ export class InvoiceComponent {
       console.log(newRecord);
       const bodyRequest: any = {
         quantity: newRecord.quantity,
-        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : newRecord.amountPerUnit
         //newRecord.amountPerUnit,
       };
       if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
@@ -1501,13 +1407,13 @@ export class InvoiceComponent {
         next: (res) => {
           console.log('mainitem with total:', res);
           //newRecord.total = res.total;
-          newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+          newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit
           //res.amountPerUnitWithProfit;
           // if (this.newMainItem.amountPerUnitWithProfit !== undefined) {
           //   console.log(this.newMainItem.amountPerUnitWithProfit);
           //   newRecord.amountPerUnitWithProfit = this.newMainItem.amountPerUnitWithProfit;
           // }
-          newRecord.totalWithProfit = res.total;
+         // newRecord.totalWithProfit = res.total;
           // res.totalWithProfit;
           const filteredRecord = Object.fromEntries(
             Object.entries(newRecord).filter(([_, value]) => {
@@ -1559,7 +1465,11 @@ export class InvoiceComponent {
         amountPerUnitWithProfit: this.newMainItem.amountPerUnitWithProfit,
         total: (this.resultAfterTest) * (this.newMainItem.amountPerUnit ?? 0),
         profitMargin: this.newMainItem.profitMargin,
-        totalWithProfit: this.newMainItem.totalWithProfit,
+       // totalWithProfit: this.newMainItem.totalWithProfit,
+       
+       totalWithProfit:  (this.newMainItem.amountPerUnitWithProfit != null && this.newMainItem.amountPerUnitWithProfit !== 0) ?
+       this.resultAfterTest * this.newMainItem.amountPerUnitWithProfit
+       : this.resultAfterTest * (this.newMainItem.amountPerUnit ?? 0) *((this.newMainItem.profitMargin ?? 0) / 100) + this.resultAfterTest * (this.newMainItem.amountPerUnit ?? 0),
         temporaryDeletion: 'temporary',
         referenceId: this.documentNumber,
         Type: '',
@@ -1580,7 +1490,7 @@ export class InvoiceComponent {
       console.log(newRecord);
       const bodyRequest: any = {
         quantity: newRecord.quantity,
-        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : newRecord.amountPerUnit
         // newRecord.amountPerUnit,
       };
       if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
@@ -1589,14 +1499,14 @@ export class InvoiceComponent {
       this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
         next: (res) => {
           console.log('mainitem with total:', res);
-         // newRecord.total = res.total;
-          newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+          // newRecord.total = res.total;
+          newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit
           //res.amountPerUnitWithProfit;
           // if (this.newMainItem.amountPerUnitWithProfit !== undefined) {
           //   console.log(this.newMainItem.amountPerUnitWithProfit);
           //   newRecord.amountPerUnitWithProfit = this.newMainItem.amountPerUnitWithProfit;
           // }
-          newRecord.totalWithProfit = res.total;
+         // newRecord.totalWithProfit = res.total;
           //res.totalWithProfit;
           const filteredRecord = Object.fromEntries(
             Object.entries(newRecord).filter(([_, value]) => {
@@ -2245,7 +2155,7 @@ export class InvoiceComponent {
           currencyCode: item.currencyCode,
           total: item.total,
           profitMargin: item.profitMargin,
-          amountPerUnitWithProfit:item.amountPerUnitWithProfit,
+          amountPerUnitWithProfit: item.amountPerUnitWithProfit,
           totalWithProfit: item.totalWithProfit,
         }));
         console.log(saveRequests);
@@ -2282,7 +2192,6 @@ export class InvoiceComponent {
       reject: () => { },
     });
   }
-
   // For Edit  MainItem
   clonedMainItem: { [s: number]: MainItem } = {};
   onMainItemEditInit(record: MainItem) {
@@ -2313,7 +2222,7 @@ export class InvoiceComponent {
             'invoiceSubItemCode',
           ])
         ),
-        total :(record.quantity ?? 0) * (record.amountPerUnit ?? 0),
+        total: (record.quantity ?? 0) * (record.amountPerUnit ?? 0),
         unitOfMeasurementCode:
           this.updateSelectedServiceNumberRecord.unitOfMeasurementCode,
         //this.updateSelectedServiceNumberRecord.baseUnitOfMeasurement,
@@ -2323,7 +2232,7 @@ export class InvoiceComponent {
       //....................
       const bodyRequest: any = {
         quantity: newRecord.quantity,
-        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : newRecord.amountPerUnit
         //newRecord.amountPerUnit,
       };
 
@@ -2334,7 +2243,7 @@ export class InvoiceComponent {
         next: (res) => {
           console.log('mainitem with total:', res);
           //newRecord.total = res.total;
-          newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+          newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit
           // res.amountPerUnitWithProfit;
           // if (record.amountPerUnitWithProfit !== null) {
           //   console.log(record.amountPerUnitWithProfit);
@@ -2388,7 +2297,7 @@ export class InvoiceComponent {
             'invoiceSubItemCode',
           ])
         ),
-        total :(this.resultAfterTestUpdate ?? 0) * (record.amountPerUnit ?? 0),
+        total: (this.resultAfterTestUpdate ?? 0) * (record.amountPerUnit ?? 0),
         unitOfMeasurementCode:
           this.updateSelectedServiceNumberRecord.unitOfMeasurementCode,
         // this.updateSelectedServiceNumberRecord.baseUnitOfMeasurement,
@@ -2400,7 +2309,7 @@ export class InvoiceComponent {
       //....................
       const bodyRequest: any = {
         quantity: newRecord.quantity,
-        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : newRecord.amountPerUnit
         //newRecord.amountPerUnit,
       };
 
@@ -2413,8 +2322,8 @@ export class InvoiceComponent {
         next: (res) => {
           console.log('mainitem with total:', res);
           // this.totalValue = 0;
-         // newRecord.total = res.total;
-          newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+          // newRecord.total = res.total;
+          newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit
           //res.amountPerUnitWithProfit;
           // if (record.amountPerUnitWithProfit !== null) {
           //   console.log(record.amountPerUnitWithProfit);
@@ -2470,14 +2379,14 @@ export class InvoiceComponent {
           ])
         ),
         quantity: this.resultAfterTestUpdate,
-        total :(this.resultAfterTestUpdate ?? 0) * (record.amountPerUnit ?? 0),
+        total: (this.resultAfterTestUpdate ?? 0) * (record.amountPerUnit ?? 0),
       };
       console.log(newRecord);
 
       //....................
       const bodyRequest: any = {
         quantity: newRecord.quantity,
-        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : newRecord.amountPerUnit
         //newRecord.amountPerUnit,
       };
 
@@ -2490,8 +2399,8 @@ export class InvoiceComponent {
         next: (res) => {
           console.log('mainitem with total:', res);
           // this.totalValue = 0;
-         // newRecord.total = res.total;
-          newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+          // newRecord.total = res.total;
+          newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit
           //res.amountPerUnitWithProfit;
           // if (record.amountPerUnitWithProfit !== null) {
           //   console.log(record.amountPerUnitWithProfit);
@@ -2554,13 +2463,13 @@ export class InvoiceComponent {
             'invoiceSubItemCode',
           ])
         ),
-        total :(record.quantity ?? 0) * (record.amountPerUnit ?? 0),
+        total: (record.quantity ?? 0) * (record.amountPerUnit ?? 0),
       };
 
       //....................
       const bodyRequest: any = {
         quantity: newRecord.quantity,
-        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: newRecord.amountPerUnit
+        amountPerUnit: newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : newRecord.amountPerUnit
         //updatedMainItem.amountPerUnit,
       };
       if (newRecord.profitMargin && newRecord.profitMargin !== 0) {
@@ -2569,8 +2478,8 @@ export class InvoiceComponent {
       this._ApiService.post<any>(`/total`, bodyRequest).subscribe({
         next: (res) => {
           console.log('mainitem with total:', res);
-         // updatedMainItem.total = res.total;
-         newRecord.amountPerUnitWithProfit =  newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit: res.amountPerUnitWithProfit
+          // updatedMainItem.total = res.total;
+          newRecord.amountPerUnitWithProfit = newRecord.amountPerUnitWithProfit ? newRecord.amountPerUnitWithProfit : res.amountPerUnitWithProfit
           // res.amountPerUnitWithProfit;
           // if (record.amountPerUnitWithProfit !== null) {
           //   console.log(record.amountPerUnitWithProfit);
@@ -2613,7 +2522,6 @@ export class InvoiceComponent {
     this.mainItemsRecords[index] = this.clonedMainItem[row.invoiceMainItemCode];
     delete this.clonedMainItem[row.invoiceMainItemCode];
   }
-
   // For Edit  SubItem
   clonedSubItem: { [s: number]: SubItem } = {};
   onSubItemEditInit(record: SubItem, index: number) {
@@ -3164,7 +3072,7 @@ export class InvoiceComponent {
             this.mainItemsRecords = this.mainItemsRecords.filter(item => item.invoiceMainItemCode !== record.invoiceMainItemCode);
             // Reassign originalIndex dynamically
             this.mainItemsRecords.forEach((item, index) => {
-              item.originalIndex = index + 1; 
+              item.originalIndex = index + 1;
             });
             this.mainItemsRecords = [...this.mainItemsRecords];
 
@@ -3318,51 +3226,16 @@ export class InvoiceComponent {
     this.selectedCurrencySubItem = '';
     this.selectedServiceNumberSubItem = 0;
   }
-  // // to handel checkbox selection:
-  // selectedMainItems: MainItem[] = [];
-  // selectedSubItems: SubItem[] = [];
-  // onMainItemSelection(event: any, mainItem: MainItem) {
-  //   mainItem.selected = event.checked;
-  //   this.selectedMainItems = event.checked
-  //   if (mainItem.selected) {
-  //     if (mainItem.subItems && mainItem.subItems.length > 0) {
-  //       mainItem.subItems.forEach(subItem => subItem.selected = !subItem.selected);
-  //     }
-  //   }
-  //   else {
-  //     // User deselected the record, so we need to deselect all associated subitems
-  //     if (mainItem.subItems && mainItem.subItems.length > 0) {
-  //       mainItem.subItems.forEach(subItem => subItem.selected = false)
-  //       console.log(mainItem.subItems);
-  //     }
-  //   }
-  //   // For Profit Margin:
-  //   if (event.checked) {
-  //     this.selectedRowsForProfit.push(mainItem);
-  //     console.log(this.selectedRowsForProfit);
-  //   } else {
-  //     const index = this.selectedRowsForProfit.indexOf(mainItem);
-  //     if (index !== -1) {
-  //       this.selectedRowsForProfit.splice(index, 1);
-  //       console.log(this.selectedRowsForProfit);
-  //     }
-  //   }
-  // }
   //new selection.....
-
   selectedMainItems: MainItem[] = [];
   selectedSubItems: SubItem[] = [];
-
   onMainItemSelection(event: any, mainItem: MainItem) {
     mainItem.selected = event.checked;
     console.log(mainItem.selected);
-
     if (mainItem.selected) {
       this.selectedMainItems.push(mainItem);
       this.selectedRowsForProfit.push(mainItem); // Add to profit rows
     } else {
-      // this.selectedMainItems = this.selectedMainItems.filter(item => item !== mainItem);
-      // this.selectedRowsForProfit = this.selectedRowsForProfit.filter(item => item !== mainItem); // Remove from profit rows
       this.selectedMainItems = this.selectedMainItems.filter(
         (item) => item.invoiceMainItemCode !== mainItem.invoiceMainItemCode
       );
@@ -3642,7 +3515,6 @@ export class InvoiceComponent {
       fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION
     );
   }
-
   // handle Formula Parameters
   showPopup: boolean = false;
   parameterValues: { [key: string]: number } = {};
@@ -3817,7 +3689,6 @@ export class InvoiceComponent {
     this.showPopupUpdate = false;
     this.showPopup = false;
   }
-
   // Memory Operations:
   addMainItem(item: MainItem) {
     item.invoiceMainItemCode = Date.now();

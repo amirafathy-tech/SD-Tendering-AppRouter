@@ -7,14 +7,14 @@ import { Subscription } from 'rxjs';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
-export class HeaderComponent implements OnInit,OnDestroy  {
+export class HeaderComponent implements OnInit, OnDestroy {
 
   isAuthenticated = false;
   private userSub!: Subscription;
 
   constructor(
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.userSub = this.authService.loggedInUser.subscribe(user => {

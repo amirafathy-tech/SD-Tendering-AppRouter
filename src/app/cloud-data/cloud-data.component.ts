@@ -19,6 +19,12 @@ interface ItemNumber{
 })
 export class CloudDataComponent {
 
+  customerId!:number;
+  currency:string | undefined;
+  documentItems:ItemNumber[]=[]
+
+  constructor(private router: Router,private _ApiService: ApiService) {
+  }
 
   nonNegativeValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
@@ -27,28 +33,19 @@ export class CloudDataComponent {
     };
   }
 
+
   cloudData: FormGroup = new FormGroup({
     document: new FormControl(null, [Validators.required, this.nonNegativeValidator()]),
     item: new FormControl(null, [Validators.required, this.nonNegativeValidator()])
   });
 
-  customerId!:number;
-  currency:string | undefined;
-  documentItems:ItemNumber[]=[]
-
-
-  constructor(private router: Router,private _ApiService: ApiService,private _InvoiceService: InvoiceService,) {
-  }
-
   onDocumentEnter(){
     this._ApiService.get<any>(`mainitems/${this.cloudData.value.document}`).subscribe(response => {
       console.log(response);
       console.log(response.d.results);
-      // this.documentItems=response.d.results;
       this.documentItems = response.d.results.sort((a: { SalesQuotationItem: string }, b: { SalesQuotationItem: string }) => {
         return parseInt(a.SalesQuotationItem, 10) - parseInt(b.SalesQuotationItem, 10);
       });
-      
       console.log(this.documentItems); 
       this.customerId=response.d.SoldToParty;
      });
