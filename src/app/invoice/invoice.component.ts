@@ -363,7 +363,11 @@ export class InvoiceComponent {
         total: (this.resultAfterTest) * (mainItem.grossPrice),
         //mainItem.netValue,
         profitMargin: mainItem.profitMargin,
-        totalWithProfit: mainItem.totalWithProfit,
+        //totalWithProfit: mainItem.totalWithProfit,
+        totalWithProfit:  (mainItem.amountPerUnitWithProfit != null && mainItem.amountPerUnitWithProfit !== 0) ?
+        this.resultAfterTest * mainItem.amountPerUnitWithProfit
+        : this.resultAfterTest * (mainItem.grossPrice ?? 0) *((mainItem.profitMargin ?? 0) / 100) + this.resultAfterTest * (mainItem.grossPrice ?? 0),
+ 
         // doNotPrint: mainItem.doNotPrint,
         Type: '',
         isPersisted: false,
@@ -399,7 +403,7 @@ export class InvoiceComponent {
             //   console.log(mainItem.amountPerUnitWithProfit);
             //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
             // }
-            newRecord.totalWithProfit = res.total;
+           // newRecord.totalWithProfit = res.total;
             //res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
@@ -454,7 +458,11 @@ export class InvoiceComponent {
         amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
         total: (this.resultAfterTest) * (mainItem.grossPrice),
         profitMargin: mainItem.profitMargin,
-        totalWithProfit: mainItem.totalWithProfit,
+       // totalWithProfit: mainItem.totalWithProfit,
+       totalWithProfit:  (mainItem.amountPerUnitWithProfit != null && mainItem.amountPerUnitWithProfit !== 0) ?
+       this.resultAfterTest * mainItem.amountPerUnitWithProfit
+       : this.resultAfterTest * (mainItem.grossPrice ?? 0) *((mainItem.profitMargin ?? 0) / 100) + this.resultAfterTest * (mainItem.grossPrice ?? 0),
+
         // doNotPrint: mainItem.doNotPrint,
         Type: '',
         isPersisted: false,
@@ -490,7 +498,7 @@ export class InvoiceComponent {
             //   console.log(mainItem.amountPerUnitWithProfit);
             //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
             // }
-            newRecord.totalWithProfit = res.total;
+           // newRecord.totalWithProfit = res.total;
             //res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
@@ -544,7 +552,12 @@ export class InvoiceComponent {
         amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
         total: (mainItem.quantity) * (mainItem.grossPrice),
         profitMargin: mainItem.profitMargin,
-        totalWithProfit: mainItem.totalWithProfit,
+       // totalWithProfit: mainItem.totalWithProfit,
+       totalWithProfit: (mainItem.amountPerUnitWithProfit != null && mainItem.amountPerUnitWithProfit !== 0) ?
+       (mainItem.quantity ?? 0) * mainItem.amountPerUnitWithProfit
+       : (mainItem.quantity ?? 0) * (mainItem.grossPrice ?? 0) *
+       ((mainItem.profitMargin ?? 0) / 100) +(mainItem.quantity ?? 0) * (mainItem.grossPrice ?? 0),
+
         // doNotPrint: mainItem.doNotPrint,
         Type: '',
         isPersisted: false,
@@ -580,7 +593,7 @@ export class InvoiceComponent {
             //   console.log(mainItem.amountPerUnitWithProfit);
             //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
             // }
-            newRecord.totalWithProfit = res.total;
+           // newRecord.totalWithProfit = res.total;
             //res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
@@ -634,7 +647,12 @@ export class InvoiceComponent {
         amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
         total: (mainItem.quantity) * (mainItem.grossPrice),
         profitMargin: mainItem.profitMargin,
-        totalWithProfit: mainItem.totalWithProfit,
+       // totalWithProfit: mainItem.totalWithProfit,
+       totalWithProfit: (mainItem.amountPerUnitWithProfit != null && mainItem.amountPerUnitWithProfit !== 0) ?
+       (mainItem.quantity ?? 0) * mainItem.amountPerUnitWithProfit
+       : (mainItem.quantity ?? 0) * (mainItem.grossPrice ?? 0) *
+       ((mainItem.profitMargin ?? 0) / 100) +(mainItem.quantity ?? 0) * (mainItem.grossPrice ?? 0),
+
         // doNotPrint: mainItem.doNotPrint,
         Type: '',
         isPersisted: false,
@@ -670,7 +688,7 @@ export class InvoiceComponent {
             //   console.log(mainItem.amountPerUnitWithProfit);
             //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
             // }
-            newRecord.totalWithProfit = res.total;
+           // newRecord.totalWithProfit = res.total;
             //res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
@@ -785,7 +803,11 @@ export class InvoiceComponent {
         total: (this.resultAfterTest) * (mainItem.amountPerUnit ?? 0),
         //mainItem.total,
         profitMargin: mainItem.profitMargin,
-        totalWithProfit: mainItem.totalWithProfit,
+       // totalWithProfit: mainItem.totalWithProfit,
+       totalWithProfit:  (mainItem.amountPerUnitWithProfit != null && mainItem.amountPerUnitWithProfit !== 0) ?
+       this.resultAfterTest * mainItem.amountPerUnitWithProfit
+       : this.resultAfterTest * (mainItem.amountPerUnit ?? 0) *((mainItem.profitMargin ?? 0) / 100) + this.resultAfterTest * (mainItem.amountPerUnit ?? 0),
+
         doNotPrint: mainItem.doNotPrint,
         Type: '',
         isPersisted: false,
@@ -822,7 +844,7 @@ export class InvoiceComponent {
             //   console.log(mainItem.amountPerUnitWithProfit);
             //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
             // }
-            newRecord.totalWithProfit = res.total;
+           // newRecord.totalWithProfit = res.total;
             //res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
@@ -877,7 +899,12 @@ export class InvoiceComponent {
         amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
         total: (this.resultAfterTest) * (mainItem.amountPerUnit ?? 0),
         profitMargin: mainItem.profitMargin,
-        totalWithProfit: mainItem.totalWithProfit,
+        // totalWithProfit: mainItem.totalWithProfit,
+        
+       totalWithProfit:  (mainItem.amountPerUnitWithProfit != null && mainItem.amountPerUnitWithProfit !== 0) ?
+       this.resultAfterTest * mainItem.amountPerUnitWithProfit
+       : this.resultAfterTest * (mainItem.amountPerUnit ?? 0) *((mainItem.profitMargin ?? 0) / 100) + this.resultAfterTest * (mainItem.amountPerUnit ?? 0),
+
         doNotPrint: mainItem.doNotPrint,
         Type: '',
         isPersisted: false,
@@ -914,7 +941,7 @@ export class InvoiceComponent {
             //   console.log(mainItem.amountPerUnitWithProfit);
             //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
             // }
-            newRecord.totalWithProfit = res.total;
+           // newRecord.totalWithProfit = res.total;
             //res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
@@ -967,7 +994,12 @@ export class InvoiceComponent {
         amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
         total: (mainItem.quantity ?? 0) * (mainItem.amountPerUnit ?? 0),
         profitMargin: mainItem.profitMargin,
-        totalWithProfit: mainItem.totalWithProfit,
+        // totalWithProfit: mainItem.totalWithProfit,
+        totalWithProfit: (mainItem.amountPerUnitWithProfit != null && mainItem.amountPerUnitWithProfit !== 0) ?
+        (mainItem.quantity ?? 0) * mainItem.amountPerUnitWithProfit
+        : (mainItem.quantity ?? 0) * (mainItem.amountPerUnit ?? 0) *
+        ((mainItem.profitMargin ?? 0) / 100) +(mainItem.quantity ?? 0) * (mainItem.amountPerUnit ?? 0),
+
         doNotPrint: mainItem.doNotPrint,
         Type: '',
         isPersisted: false,
@@ -1004,7 +1036,7 @@ export class InvoiceComponent {
             //   console.log(mainItem.amountPerUnitWithProfit);
             //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
             // }
-            newRecord.totalWithProfit = res.total;
+           // newRecord.totalWithProfit = res.total;
             //res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
@@ -1058,7 +1090,12 @@ export class InvoiceComponent {
         amountPerUnitWithProfit: mainItem.amountPerUnitWithProfit,
         total: (mainItem.quantity ?? 0) * (mainItem.amountPerUnit ?? 0),
         profitMargin: mainItem.profitMargin,
-        totalWithProfit: mainItem.totalWithProfit,
+        // totalWithProfit: mainItem.totalWithProfit,
+        totalWithProfit: (mainItem.amountPerUnitWithProfit != null && mainItem.amountPerUnitWithProfit !== 0) ?
+        (mainItem.quantity ?? 0) * mainItem.amountPerUnitWithProfit
+        : (mainItem.quantity ?? 0) * (mainItem.amountPerUnit ?? 0) *
+        ((mainItem.profitMargin ?? 0) / 100) +(mainItem.quantity ?? 0) * (mainItem.amountPerUnit ?? 0),
+
         doNotPrint: mainItem.doNotPrint,
         Type: '',
         isPersisted: false,
@@ -1095,7 +1132,7 @@ export class InvoiceComponent {
             //   console.log(mainItem.amountPerUnitWithProfit);
             //   newRecord.amountPerUnitWithProfit = mainItem.amountPerUnitWithProfit;
             // }
-            newRecord.totalWithProfit = res.total;
+           // newRecord.totalWithProfit = res.total;
             //res.totalWithProfit;
             console.log(' Record:', newRecord);
             const filteredRecord = Object.fromEntries(
