@@ -402,9 +402,9 @@
       <td style="min-width: 9.5rem">
         <div class="flex align-items-center justify-content-center gap-2">
           <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
-            (click)="onMainItemEditInit(mainItem)" class="p-button-rounded p-button-text"></button>
+            (click)="onMainItemEditInit(mainItem,ri)" class="p-button-rounded p-button-text"></button>
           <button *ngIf="editing" pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
-            (click)="onMainItemEditSave(mainItem.invoiceMainItemCode, mainItem)"
+            (click)="onMainItemEditSave(mainItem.invoiceMainItemCode, mainItem,ri)"
             class="p-button-rounded p-button-text p-button-success mr-2"></button>
           <button *ngIf="editing" pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
             (click)="onMainItemEditCancel(mainItem, ri)"
@@ -660,14 +660,14 @@
             <td style="min-width: 9.5rem">
               <div class="flex align-items-center justify-content-center gap-2">
                 <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil" (click)="
-                    onSubItemEditInit(subItem, subItem.invoiceSubItemCode)
+                    onSubItemEditInit(subItem, subItem.invoiceSubItemCode,ri)
                   " class="p-button-rounded p-button-text"></button>
                 <button *ngIf="editing" pButton pRipple type="button" pSaveEditableRow icon="pi pi-check" (click)="
                     onSubItemEditSave(
                       subItem.invoiceSubItemCode,
                       subItem,
-                      mainItem
-                    )
+                      mainItem,
+                      ri)
                   " class="p-button-rounded p-button-text p-button-success mr-2"></button>
                 <button *ngIf="editing" pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
                   (click)="onSubItemEditCancel(subItem, ri)"

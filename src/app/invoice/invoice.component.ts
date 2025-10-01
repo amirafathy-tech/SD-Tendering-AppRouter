@@ -99,6 +99,10 @@ export class InvoiceComponent {
   mainItemsRecords: MainItem[] = [];
   subItemsRecords: SubItem[] = [];
 
+    // to detect unsaved edits
+  editingRows: Set<number> = new Set(); // rowIndex values of rows being edited
+  editingSubItemsRows: Set<number> = new Set();
+
   constructor(
     private cdr: ChangeDetectorRef,
     private router: Router,
@@ -2169,6 +2173,14 @@ export class InvoiceComponent {
   }
   // Save All Document:
   saveDocument() {
+    if (this.editingRows.size > 0 || this.editingSubItemsRows.size > 0) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Cannot Save the document,Please save your entries first'
+      });
+      return;
+    }
     this.confirmationService.confirm({
       message: 'Are you sure you want to save the document?',
       header: 'Confirm Saving ',
@@ -2231,11 +2243,12 @@ export class InvoiceComponent {
   }
   // For Edit  MainItem
   clonedMainItem: { [s: number]: MainItem } = {};
-  onMainItemEditInit(record: MainItem) {
+  onMainItemEditInit(record: MainItem, ri: number) {
     this.clonedMainItem[record.invoiceMainItemCode] = { ...record };
+    this.editingRows.add(ri);
     // record.amountPerUnitWithProfit = undefined;
   }
-  onMainItemEditSave(index: number, record: MainItem) {
+  onMainItemEditSave(index: number, record: MainItem, ri: number) {
     console.log(record);
     const {
       invoiceMainItemCode,
@@ -2554,14 +2567,17 @@ export class InvoiceComponent {
       // this.cdr.detectChanges();
       // console.log(this.mainItemsRecords);
     }
+
+    this.editingRows.delete(ri);
   }
   onMainItemEditCancel(row: MainItem, index: number) {
     this.mainItemsRecords[index] = this.clonedMainItem[row.invoiceMainItemCode];
     delete this.clonedMainItem[row.invoiceMainItemCode];
+    this.editingRows.delete(index);
   }
   // For Edit  SubItem
   clonedSubItem: { [s: number]: SubItem } = {};
-  onSubItemEditInit(record: SubItem, index: number) {
+  onSubItemEditInit(record: SubItem, index: number, ri: number) {
     console.log(index);
 
     console.log(record);
@@ -2587,6 +2603,7 @@ export class InvoiceComponent {
     if (record.invoiceSubItemCode) {
       if (!this.clonedSubItem[record.invoiceSubItemCode]) {
         this.clonedSubItem[record.invoiceSubItemCode] = { ...record };
+        this.editingSubItemsRows.add(ri);
       }
       // this.clonedSubItem[record.invoiceSubItemCode] = { ...record };
     }
@@ -2595,7 +2612,7 @@ export class InvoiceComponent {
 
     console.log('After adding record:', this.clonedSubItem);
   }
-  onSubItemEditSave(index: number, record: SubItem, mainItem: MainItem) {
+  onSubItemEditSave(index: number, record: SubItem, mainItem: MainItem, ri: number) {
     // Ensure record and mainItem are valid
     if (!record || !record.invoiceSubItemCode) {
       console.error(
@@ -3079,6 +3096,8 @@ export class InvoiceComponent {
       });
       ///...................
     }
+    this.editingSubItemsRows.delete(ri);
+
   }
   onSubItemEditCancel(subItem: any, index: number) {
     const originalItem = this.clonedSubItem[subItem.invoiceSubItemCode];
@@ -3089,6 +3108,7 @@ export class InvoiceComponent {
         }
       });
       delete this.clonedSubItem[subItem.invoiceSubItemCode];
+      this.editingSubItemsRows.delete(index);
     }
   }
 
