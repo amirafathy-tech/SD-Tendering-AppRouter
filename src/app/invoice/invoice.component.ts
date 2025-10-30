@@ -1397,14 +1397,15 @@ export class InvoiceComponent {
       !this.selectedFormulaRecord &&
       !this.resultAfterTest
     ) {
+      console.log(this.selectedServiceNumberRecord);
       // if user select serviceNumber && didn't select formula
       const newRecord: MainItem = {
         originalIndex: this.mainItemsRecords.length + 1,
 
         serviceNumberCode: this.selectedServiceNumber,
         unitOfMeasurementCode:
-          this.selectedServiceNumberRecord.unitOfMeasurementCode,
-        // this.selectedServiceNumberRecord.baseUnitOfMeasurement,
+         // this.selectedServiceNumberRecord.unitOfMeasurementCode,
+         this.selectedServiceNumberRecord.baseUnitOfMeasurement,
         currencyCode: this.cloudCurrency,
         // this.selectedCurrency,
         description: this.selectedServiceNumberRecord.description,
@@ -1489,14 +1490,15 @@ export class InvoiceComponent {
       this.selectedFormulaRecord &&
       this.resultAfterTest
     ) {
+      console.log(this.selectedServiceNumberRecord);
       // if user select serviceNumber && select formula
       const newRecord: MainItem = {
         originalIndex: this.mainItemsRecords.length + 1,
 
         serviceNumberCode: this.selectedServiceNumber,
         unitOfMeasurementCode:
-          this.selectedServiceNumberRecord.unitOfMeasurementCode,
-        // this.selectedServiceNumberRecord.baseUnitOfMeasurement,
+          //this.selectedServiceNumberRecord.unitOfMeasurementCode,
+         this.selectedServiceNumberRecord.baseUnitOfMeasurement,
         currencyCode: this.cloudCurrency,
         //this.selectedCurrency,
         formulaCode: this.selectedFormula,
@@ -1894,8 +1896,8 @@ export class InvoiceComponent {
       const newRecord: SubItem = {
         serviceNumberCode: this.selectedServiceNumberSubItem,
         unitOfMeasurementCode:
-          this.selectedServiceNumberRecordSubItem.unitOfMeasurementCode,
-        //this.selectedServiceNumberRecordSubItem.baseUnitOfMeasurement,
+         // this.selectedServiceNumberRecordSubItem.unitOfMeasurementCode,
+        this.selectedServiceNumberRecordSubItem.baseUnitOfMeasurement,
         currencyCode: this.cloudCurrency,
         // this.selectedCurrencySubItem,
         description: this.selectedServiceNumberRecordSubItem.description,
@@ -2035,8 +2037,8 @@ export class InvoiceComponent {
       const newRecord: SubItem = {
         serviceNumberCode: this.selectedServiceNumberSubItem,
         unitOfMeasurementCode:
-          this.selectedServiceNumberRecordSubItem.unitOfMeasurementCode,
-        //this.selectedServiceNumberRecordSubItem.baseUnitOfMeasurement,
+          //this.selectedServiceNumberRecordSubItem.unitOfMeasurementCode,
+        this.selectedServiceNumberRecordSubItem.baseUnitOfMeasurement,
         currencyCode: this.cloudCurrency,
         //this.selectedCurrencySubItem,
         formulaCode: this.selectedFormulaSubItem,
@@ -2274,8 +2276,8 @@ export class InvoiceComponent {
         ),
         total: (record.quantity ?? 0) * (record.amountPerUnit ?? 0),
         unitOfMeasurementCode:
-          this.updateSelectedServiceNumberRecord.unitOfMeasurementCode,
-        //this.updateSelectedServiceNumberRecord.baseUnitOfMeasurement,
+          //this.updateSelectedServiceNumberRecord.unitOfMeasurementCode,
+        this.updateSelectedServiceNumberRecord.baseUnitOfMeasurement,
         description: this.updateSelectedServiceNumberRecord.description,
       };
       console.log(newRecord);
@@ -2349,8 +2351,8 @@ export class InvoiceComponent {
         ),
         total: (this.resultAfterTestUpdate ?? 0) * (record.amountPerUnit ?? 0),
         unitOfMeasurementCode:
-          this.updateSelectedServiceNumberRecord.unitOfMeasurementCode,
-        // this.updateSelectedServiceNumberRecord.baseUnitOfMeasurement,
+          //this.updateSelectedServiceNumberRecord.unitOfMeasurementCode,
+         this.updateSelectedServiceNumberRecord.baseUnitOfMeasurement,
         description: this.updateSelectedServiceNumberRecord.description,
         quantity: this.resultAfterTestUpdate,
       };
@@ -2642,7 +2644,8 @@ export class InvoiceComponent {
       const newRecord: SubItem = {
         ...clonedRecord,
         unitOfMeasurementCode:
-          this.updateSelectedServiceNumberRecordSubItem.unitOfMeasurementCode,
+          //this.updateSelectedServiceNumberRecordSubItem.unitOfMeasurementCode,
+          this.updateSelectedServiceNumberRecordSubItem.baseUnitOfMeasurement,
         description: this.updateSelectedServiceNumberRecordSubItem.description,
       };
       console.log('New SubItem Record:', newRecord);
@@ -2757,8 +2760,8 @@ export class InvoiceComponent {
       const newRecord: SubItem = {
         ...clonedRecord,
         unitOfMeasurementCode:
-          this.updateSelectedServiceNumberRecordSubItem.unitOfMeasurementCode,
-        // this.updateSelectedServiceNumberRecordSubItem.baseUnitOfMeasurement,
+          //this.updateSelectedServiceNumberRecordSubItem.unitOfMeasurementCode,
+         this.updateSelectedServiceNumberRecordSubItem.baseUnitOfMeasurement,
         description: this.updateSelectedServiceNumberRecordSubItem.description,
         quantity: this.resultAfterTestUpdate,
       };
@@ -3337,6 +3340,8 @@ export class InvoiceComponent {
     );
     if (selectedRecord) {
       this.selectedServiceNumberRecord = selectedRecord;
+      console.log(this.selectedServiceNumberRecord);
+      
       this.shortTextChangeAllowed =
         this.selectedServiceNumberRecord?.shortTextChangeAllowed || false;
       this.shortText = '';

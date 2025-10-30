@@ -202,7 +202,8 @@
         <p-cellEditor>
           <ng-template pTemplate="input">
             <ng-container *ngIf="updateSelectedServiceNumberRecord">
-              {{ updateSelectedServiceNumberRecord.unitOfMeasurementCode }}
+              <!-- {{ updateSelectedServiceNumberRecord.unitOfMeasurementCode }} -->
+              {{ updateSelectedServiceNumberRecord.baseUnitOfMeasurement }}
             </ng-container>
             <ng-container *ngIf="!updateSelectedServiceNumberRecord">
               <p-dropdown [options]="recordsUnitOfMeasure" [(ngModel)]="mainItem.unitOfMeasurementCode"
@@ -560,8 +561,11 @@
               <p-cellEditor>
                 <ng-template pTemplate="input">
                   <ng-container *ngIf="updateSelectedServiceNumberRecordSubItem">
-                    {{
+                    <!-- {{
                     updateSelectedServiceNumberRecordSubItem.unitOfMeasurementCode
+                    }} -->
+                     {{
+                    updateSelectedServiceNumberRecordSubItem.baseUnitOfMeasurement
                     }}
                   </ng-container>
                   <ng-container *ngIf="!updateSelectedServiceNumberRecordSubItem">
@@ -740,7 +744,8 @@
             </td>
             <td style="min-width: 10.2rem">
               <ng-container *ngIf="selectedServiceNumberRecordSubItem">
-                {{ selectedServiceNumberRecordSubItem.unitOfMeasurementCode }}
+                <!-- {{ selectedServiceNumberRecordSubItem.unitOfMeasurementCode }} -->
+                {{ selectedServiceNumberRecordSubItem.baseUnitOfMeasurement }}
               </ng-container>
               <ng-container *ngIf="!selectedServiceNumberRecordSubItem">
                 <p-dropdown [options]="recordsUnitOfMeasure" [(ngModel)]="selectedUnitOfMeasureSubItem"
@@ -1265,8 +1270,8 @@
       </td>
       <td style="min-width: 10rem">
         <ng-container *ngIf="selectedServiceNumberRecord">
-          <!-- {{selectedServiceNumberRecord.baseUnitOfMeasurement}} -->
-          {{ selectedServiceNumberRecord.unitOfMeasurementCode }}
+          {{selectedServiceNumberRecord.baseUnitOfMeasurement}}
+          <!-- {{ selectedServiceNumberRecord.unitOfMeasurementCode }} -->
         </ng-container>
 
         <ng-container *ngIf="!selectedServiceNumberRecord">
