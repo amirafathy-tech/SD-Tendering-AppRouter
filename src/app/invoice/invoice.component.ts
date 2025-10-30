@@ -355,7 +355,8 @@ export class InvoiceComponent {
         originalIndex: this.mainItemsRecords.length + 1,
         //
         serviceNumberCode: mainItem.serviceNumberCode,
-        unitOfMeasurementCode: this.selectedServiceNumberRecordForModels.unitOfMeasurementCode,
+        unitOfMeasurementCode: this.selectedServiceNumberRecordForModels.baseUnitOfMeasurement,
+        //this.selectedServiceNumberRecordForModels.unitOfMeasurementCode,
         currencyCode: mainItem.currencyCode,
         description: this.selectedServiceNumberRecordForModels.description,
 
@@ -546,7 +547,8 @@ export class InvoiceComponent {
         originalIndex: this.mainItemsRecords.length + 1,
         //
         serviceNumberCode: mainItem.serviceNumberCode,
-        unitOfMeasurementCode: this.selectedServiceNumberRecordForModels.unitOfMeasurementCode,
+        unitOfMeasurementCode: this.selectedServiceNumberRecordForModels.baseUnitOfMeasurement,
+        //this.selectedServiceNumberRecordForModels.unitOfMeasurementCode,
         currencyCode: mainItem.currencyCode,
         description: this.selectedServiceNumberRecordForModels.description,
 
@@ -795,7 +797,8 @@ export class InvoiceComponent {
         originalIndex: this.mainItemsRecords.length + 1,
         //
         serviceNumberCode: mainItem.serviceNumberCode,
-        unitOfMeasurementCode: this.selectedServiceNumberRecordForExcel.unitOfMeasurementCode,
+        unitOfMeasurementCode: this.selectedServiceNumberRecordForExcel.baseUnitOfMeasurement,
+        //this.selectedServiceNumberRecordForExcel.unitOfMeasurementCode,
         currencyCode: mainItem.currencyCode,
         description: this.selectedServiceNumberRecordForExcel.description,
 
@@ -988,7 +991,8 @@ export class InvoiceComponent {
         originalIndex: this.mainItemsRecords.length + 1,
         //
         serviceNumberCode: mainItem.serviceNumberCode,
-        unitOfMeasurementCode: this.selectedServiceNumberRecordForExcel.unitOfMeasurementCode,
+        unitOfMeasurementCode: this.selectedServiceNumberRecordForExcel.baseUnitOfMeasurement,
+        //this.selectedServiceNumberRecordForExcel.unitOfMeasurementCode,
         currencyCode: mainItem.currencyCode,
         description: this.selectedServiceNumberRecordForExcel.description,
 

@@ -862,7 +862,8 @@
         </td>
         <td style="min-width: 10rem;">
           <ng-container *ngIf="selectedServiceNumberRecordForModels">
-            {{ selectedServiceNumberRecordForModels.unitOfMeasurementCode }}
+            <!-- {{ selectedServiceNumberRecordForModels.unitOfMeasurementCode }} -->
+            {{ selectedServiceNumberRecordForModels.baseUnitOfMeasurement }}
           </ng-container>
 
           <ng-container *ngIf="!selectedServiceNumberRecordForModels">
@@ -1067,7 +1068,8 @@
 
         <td style="min-width: 10rem;">
           <ng-container *ngIf="selectedServiceNumberRecordForExcel">
-            {{ selectedServiceNumberRecordForExcel.unitOfMeasurementCode }}
+            <!-- {{ selectedServiceNumberRecordForExcel.unitOfMeasurementCode }} -->
+            {{ selectedServiceNumberRecordForExcel.baseUnitOfMeasurement }}
           </ng-container>
           <ng-container *ngIf="!selectedServiceNumberRecordForExcel">
             <p-dropdown [options]="recordsUnitOfMeasure" [(ngModel)]="mainItem.unitOfMeasurementCode"
